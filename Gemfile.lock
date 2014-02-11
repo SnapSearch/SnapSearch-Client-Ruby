@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    snapsearch (0.0.3)
+    snapsearch-client-ruby (0.0.3)
       httpi (~> 2.1.0)
       version (~> 1.0.0)
 
@@ -283,4 +283,4 @@ DEPENDENCIES
   rake (~> 10.1.1)
   rspec (~> 2.14.1)
   rubysl (~> 2.0)
-  snapsearch!
+  snapsearch-client-ruby!
