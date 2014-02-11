@@ -28,7 +28,7 @@ See all build tasks:
 bundle exec rake -T
 ```
 
-Make your changes. Release a new version tag with:
+Make your changes. Release a new version tag with (see the other `rake version:bump:... etc` tasks):
 
 ```
 bundle exec rake version:bump
