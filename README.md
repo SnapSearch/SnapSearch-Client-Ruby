@@ -50,7 +50,7 @@ bundle exec rake gem
 Push the gem to Ruby Gems:
 
 ```
-gem push pkg/snapsearch-MAJOR.MINOR.PATCH.gem
+gem push pkg/snapsearch-client-ruby-MAJOR.MINOR.PATCH.gem
 ```
 
 Tests
