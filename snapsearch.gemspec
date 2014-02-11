@@ -3,8 +3,9 @@ require 'pathname'
 Gem::Specification.new do |s|
   
   # Variables
-  s.author      = 'SnapSearch'
+  s.author      = 'Ryan Scott Lewis'
   s.email       = 'roger.qiu@polycademy.com'
+  s.name        = 'snapsearch-client-ruby'
   s.summary     = 'Ruby HTTP Client Middleware Libraries for SnapSearch. Search engine optimisation for single page applications.'
   s.homepage    = 'https://github.com/SnapSearch/SnapSearch-Client-Ruby'
   s.license     = 'MIT'
@@ -20,7 +21,6 @@ Gem::Specification.new do |s|
   # Pragmatically set variables
   s.version       = Pathname.glob('VERSION*').first.read rescue '0.0.0'
   s.description   = s.summary
-  s.name          = Pathname.new(__FILE__).basename('.gemspec').to_s
   s.require_paths = ['lib']
   s.files         = Dir['{{Rake,Gem}file{.lock,},README*,VERSION,LICENSE,*.gemspec,{lib,bin,examples,spec,test}/**/*}']
   s.test_files    = Dir['{examples,spec,test}/**/*']
