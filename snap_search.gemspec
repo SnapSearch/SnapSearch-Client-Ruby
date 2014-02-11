@@ -3,9 +3,9 @@ require 'pathname'
 Gem::Specification.new do |s|
   
   # Variables
-  s.author      = 'Polycadamy'
-  s.email       = '' # TODO
-  s.summary     = '' # TODO
+  s.author      = 'SnapSearch'
+  s.email       = 'roger.qiu@polycademy.com'
+  s.summary     = 'Ruby HTTP Client Middleware Libraries for SnapSearch. Search engine optimisation for single page applications.'
   s.license     = 'MIT'
   
   # Dependencies
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'fuubar',      '~> 1.3.2'
   
   # Pragmatically set variables
-  s.homepage      = "http://github.com/RyanScottLewis/#{s.name}" # TODO: Real homepage
+  s.homepage      = "https://github.com/SnapSearch/SnapSearch-Client-Ruby"
   s.version       = Pathname.glob('VERSION*').first.read rescue '0.0.0'
   s.description   = s.summary
   s.name          = Pathname.new(__FILE__).basename('.gemspec').to_s
