@@ -1,6 +1,12 @@
 SnapSearch-Client-Ruby
 ======================
 
+[![Build Status](https://travis-ci.org/SnapSearch/SnapSearch-Client-Ruby.png?branch=master)](https://travis-ci.org/SnapSearch/SnapSearch-Client-Ruby)
+
+Snapsearch Client Ruby is Ruby based framework agnostic HTTP client library for SnapSearch (https://snapsearch.io/).
+
+SnapSearch provides similar libraries in other languages: https://github.com/SnapSearch/Snapsearch-Clients
+
 Installation
 ------------
 
