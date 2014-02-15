@@ -3,17 +3,24 @@ require 'json'
 
 module SnapSearch
   
-  # TODO: YARD
+  # This is used to detect if an incoming request to a HTTP server is coming from a robot.
   class Detector
     
     attr_reader :request, :matched_routes, :ignored_routes, :robots_json, :check_static_files, :robots
     
-    # TODO: YARD
+    # Create a new Detector instance.
+    # 
+    # @param [Hash, #to_h] options The options to create the detector with.
+    # @option options [Array<Regexp>] :matched_routes The whitelisted routes.
+    # @option options [Array<Regexp>] :ignored_routes The blacklisted routes.
+    # @option options [String, #to_s] :robots_json The path of the JSON file containing the user agent whitelist & blacklist.
+    # @option options [true, false] :check_static_files Set to `true` to ignore direct requests to files.
+    # @option options [Rack::Request] :request The Rack request that is to be checked/detected.
     def initialize(options={})
       options = {
         matched_routes: [],
         ignored_routes: [],
-        robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json'), # TODO: Root/data/Robots.json in it
+        robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json').to_s,
         check_static_files: false
       }.merge(options)
       
@@ -34,11 +41,7 @@ module SnapSearch
     #   8. on any matched robot user agents
     # 
     # @return [true, false] If the request came from a robot
-    # TODO: YARD raises
-    # TODO: Break out into helper methods
     def detect
-      
-      # the user agent may not exist, so we want to make sure to gets typecast to a string
       real_path = get_decoded_path
       document_root = @request['DOCUMENT_ROOT']
       

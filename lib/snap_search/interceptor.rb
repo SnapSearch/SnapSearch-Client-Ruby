@@ -1,18 +1,21 @@
 module SnapSearch
   
-  # TODO: YARD
-  # TODO: This class is the result of excessive abstraction and can be rolled into Client
+  # This handles callbacks for before and after interception of a robot.
   class Interceptor
     
-    # TODO: YARD
+    # Create a new Interceptor instance.
+    # 
+    # @param [Client] client The client to send HTTP requests to the SnapChat API with.
+    # @param [Detector] detector The detector to detect and intercept robots with.
     def initialize(client, detector)
       @client, @detector = client, detector
     end
     
-    # Intercept begins the detection and returns the snapshot if the request was scraped.
+    # Begins the detection and returns the snapshot if the request was scraped.
     # 
-    # @return [Hash, false] The response from SnapSearch or false
-    def intercept(options={}) # TODO: YARD raises & arguments
+    # @param [Hash, #to_h] options The options to pass to the Detector.
+    # @return [Hash, false] The response from SnapSearch or `false`.
+    def intercept(options={})
       @detector.detect(options) ? @client.request( @detector.get_encoded_url ) : false
     end
     
