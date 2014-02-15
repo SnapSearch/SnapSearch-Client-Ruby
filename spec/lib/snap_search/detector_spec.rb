@@ -111,8 +111,8 @@ describe SnapSearch::Detector do
       'rack.input' => StringIO.new
     }
   end
-  
-  let(:escape_fragmented_route) do
+
+  let(:basic_escaped_fragment_route) do
     {
       'HTTP_HOST' => 'localhost', 
       'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0', 
@@ -124,8 +124,27 @@ describe SnapSearch::Detector do
       'GATEWAY_INTERFACE' => 'CGI/1.1', 
       'SERVER_PROTOCOL' => 'HTTP/1.1', 
       'REQUEST_METHOD' => 'GET', 
-      'QUERY_STRING' => 'blah=yay&_escaped_fragment_=key1%3Dlol',
-      'PATH_INFO' => '/snapsearch/?blah=yay&_escaped_fragment_=key1%3Dlol',
+      'QUERY_STRING' => '_escaped_fragment_',
+      'PATH_INFO' => '/snapsearch?&_escaped_fragment_',
+      'rack.url_scheme' => 'http', 
+      'rack.input' => StringIO.new
+    }
+  end
+
+  let(:escaped_fragment_route) do
+    {
+      'HTTP_HOST' => 'localhost', 
+      'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0', 
+      'SERVER_NAME' => 'localhost', 
+      'SERVER_PORT' => '80', 
+      'REMOTE_ADDR' => '::1', 
+      'DOCUMENT_ROOT' => 'C:/www', 
+      'REQUEST_SCHEME' => 'http', 
+      'GATEWAY_INTERFACE' => 'CGI/1.1', 
+      'SERVER_PROTOCOL' => 'HTTP/1.1', 
+      'REQUEST_METHOD' => 'GET', 
+      'QUERY_STRING' => 'key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
+      'PATH_INFO' => '/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
       'rack.url_scheme' => 'http', 
       'rack.input' => StringIO.new
     }
@@ -201,9 +220,9 @@ describe SnapSearch::Detector do
     
   end
   
-  describe 'When an escape fragmented request comes through' do
+  describe 'When an escaped fragmented request comes through' do
     
-    let(:request) { Rack::Request.new(escape_fragmented_route) }
+    let(:request) { Rack::Request.new(basic_escaped_fragment_route) }
     
     subject { described_class.new(request: request) }
     
@@ -213,12 +232,12 @@ describe SnapSearch::Detector do
   
   describe '#get_encoded_url' do
     
-    let(:request) { Rack::Request.new(escape_fragmented_route) }
+    let(:request) { Rack::Request.new(escaped_fragment_route) }
     
     subject { described_class.new(request: request) }
     
-    it 'should convert the escaped fragmented route back to hash fragment' do
-      subject.get_encoded_url.should == 'http://localhost/snapsearch/?blah=yay#!key1=lol'
+    it 'should convert the escaped fragment route back to hash fragment' do
+      subject.get_encoded_url.should == 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2'
     end
     
   end
