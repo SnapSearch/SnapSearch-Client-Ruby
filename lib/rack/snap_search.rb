@@ -3,11 +3,20 @@ require 'rack/snap_search/config'
 
 module Rack
   
-  # TODO: YARD
+  # Use to enable SnapSearch detection within your web application.
   class SnapSearch
     
-    # TODO: YARD
+    # Initialize the middleware.
+    # 
+    # @param [#call] app The Rack application.
+    # @param [Hash, #to_h] options Options to configure this middleware with.
+    # @yield [Rack::SnapSearch::Config, SnapSearch::Detector] A block to further modify the middleware.
+    # @yieldparam [Rack::SnapSearch::Config] config Options to configure this middleware with, optionally preset with the `options` param.
+    # @yieldparam [SnapSearch::Detector] detector The instance of the Detector class which will be used for detecting whether requests are coming from a robot.
     def initialize(app, options={}, &block)
+      raise TypeError, 'app must respond to #call' unless app.respond_to?(:call)
+      raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h)
+      
       @app, @config = app, Rack::SnapSearch::Config.new(options)
       
       detector = ::SnapSearch::Detector.new
@@ -18,10 +27,14 @@ module Rack
       @interceptor = ::SnapSearch::Interceptor.new(client, detector)
     end
     
-    # TODO: YARD
+    # Run the middleware.
+    # 
+    # @param [Hash, to_h] app The Rack environment
     def call(environment)
-      @status, @headers, @body = @app.call(environment)
-      @request = Rack::Request.new(environment)
+      raise TypeError, 'environment must be a Hash or respond to #to_h' unless environment.is_a?(Hash) || environment.respond_to?(:to_h)
+      
+      @status, @headers, @body = @app.call(environment.to_h)
+      @request = Rack::Request.new(environment.to_h)
       
       setup_response
       setup_attributes if @response
@@ -31,7 +44,7 @@ module Rack
     
     protected
     
-    # TODO: YARD
+    # Intercept and return the response.
     def setup_response
       @response = begin
         @interceptor.intercept(request: @request) # TODO: ignored_routes, matched_routes, robots_json, & check_static_files options
@@ -40,23 +53,22 @@ module Rack
       end
     end
     
-    # TODO: YARD
+    # Setup the Location header in the response.
     def setup_location_header
       response_location_header = @response.headers.find { |header| header['name'] == 'Location' }
       
       @headers['Location'] = response_location_header['value'] unless response_location_header.nil?
     end
     
-    # TODO: YARD
+    # Setup the Status header and body in the response.
     def setup_status_and_body
       @status, @body = @response.status, @response.body # TODO: Need to status.to_i?
     end
     
-    # TODO: YARD
-    # this request is from a robot
+    # Setup Location and Status headers, as well as teh body, if we got a response from SnapSearch.
     def setup_attributes_if_response_exists
       setup_location_header
-      # TODO: Should setup_content_length_header ??
+      # TODO: Should setup_content_length_header?
       setup_status_and_body
     end
     

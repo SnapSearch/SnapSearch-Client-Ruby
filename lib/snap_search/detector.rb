@@ -141,7 +141,7 @@ module SnapSearch
     # @return [String] URL intended for SnapSearch
     def get_encoded_url(params, uri)
       raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
-      raise TypeError, 'uri must be an instance of Addressable::URI ' unless params.is_a?(Addressable::URI)
+      raise TypeError, 'uri must be an instance of Addressable::URI ' unless uri.is_a?(Addressable::URI)
       
       # NOTE: Have to pass the Rack::Request instance and use the `request.params` method to retrieve the parameters because:
       #         uri.to_s         # => "http://localhost/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2"
@@ -166,7 +166,7 @@ module SnapSearch
     # @return [String] The decoded URL.
     def get_decoded_path(params, uri)
       raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
-      raise TypeError, 'uri must be an instance of Addressable::URI ' unless params.is_a?(Addressable::URI)
+      raise TypeError, 'uri must be an instance of Addressable::URI ' unless uri.is_a?(Addressable::URI)
       
       # NOTE: Have to pass the Rack::Request instance and use the `request.params` method to retrieve the parameters because:
       #         uri.to_s         # => "http://localhost/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2"

@@ -21,11 +21,6 @@ class Middleware
   def call(env)
     status, headers, body = @app.call(env)
     
-    # TODO: REMOVE DEBUGGING
-    puts ?! * 80
-    p env
-    puts ?! * 80
-    
     [ status, headers, [body] ]
   end
   
