@@ -173,16 +173,9 @@ module SnapSearch
       if !uri.query_values.nil? && uri.query_values.has_key?('_escaped_fragment_')
         qs_and_hash = get_real_qs_and_hash_fragment(params, false) # TODO: Addressable does not correctly parse the query hash!
         
-        uri.path + qs_and_hash['qs'] + qs_and_hash['hash']
+        Addressable::URI.unescape(uri.path) + qs_and_hash['qs'] + qs_and_hash['hash']
       else
-        CGI.unescape(uri.path) # TODO: CANNOT USE! Read below...
-        # On line 158. In all likelihood double unescaping probably will not corrupt the value. However it's just a waste of CPU cycles. 
-        # The function is called get_decoded_path(). So it's everything in the URL except the SCHEME + HOST. So everything after the domain.
-        # The rawurldecode() does not decode "+" into spaces. So "+" is left as a plus. This is because "+" is only valid inside a query parameter.
-        # However "%20" needs to be a space no matter what. This means that the current use of CGI.unescape needs to make sure "%20" is a space, 
-        # but "+" is not converted to a space. Since the "+" could be a valid character in the URL path.
-        # As for the query parameters, their "+" can be left as a "+", we don't need to worry about them. 
-        # The whitelist/blacklist operate on the routes not the query parameters. Of course there are edge cases, but it's unlikely.
+        Addressable::URI.unescape(uri.path)
       end
     end
     
