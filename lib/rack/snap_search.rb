@@ -10,10 +10,11 @@ module Rack
     def initialize(app, options={}, &block)
       @app, @config = app, Rack::SnapSearch::Config.new(options)
       
-      block.call(@config) if block_given?
+      detector = ::SnapSearch::Detector.new
+      
+      block.call(@config, detector) if block_given?
       
       client = ::SnapSearch::Client.new( email: @config.email, key: @config.key )
-      detector = ::SnapSearch::Detector.new
       @interceptor = ::SnapSearch::Interceptor.new(client, detector)
     end
     
