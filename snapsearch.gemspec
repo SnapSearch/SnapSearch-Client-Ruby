@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   # Dependencies
   s.add_dependency 'version',                 '~> 1.0.0'
   s.add_dependency 'httpi',                   '~> 2.1.0'
+  s.add_dependency 'addressable',             '~> 2.0.0'
   s.add_development_dependency 'rake',        '~> 10.1.1'
   s.add_development_dependency 'rspec',       '~> 2.14.1'
   s.add_development_dependency 'guard-rspec', '~> 4.2.5'

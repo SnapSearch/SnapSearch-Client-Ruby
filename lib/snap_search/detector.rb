@@ -1,5 +1,6 @@
 require 'pathname'
 require 'json'
+require 'addressable/uri'
 
 module SnapSearch
   
