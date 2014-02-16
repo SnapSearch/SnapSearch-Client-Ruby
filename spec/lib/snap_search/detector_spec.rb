@@ -226,7 +226,7 @@ describe SnapSearch::Detector do
     let(:uri) { Addressable::URI.parse(request.url) }
     
     it 'should convert the escaped fragment route back to hash fragment' do
-      subject.get_encoded_url(request, uri).should == 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2'
+      subject.get_encoded_url(request.params, uri).should == 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2'
     end
     
   end
