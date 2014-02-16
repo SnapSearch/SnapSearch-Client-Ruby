@@ -18,14 +18,14 @@ module SnapSearch
     # @option options [true, false] :check_static_files Set to `true` to ignore direct requests to files.
     # @option options [Rack::Request] :request The Rack request that is to be checked/detected.
     def initialize(options={})
-      # TODO: Validate options
+      raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h)
       
       @options = {
         matched_routes: [],
         ignored_routes: [],
         robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json').to_s,
         check_static_files: false
-      }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
+      }.merge(options.to_h) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
       
       @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
       
@@ -79,7 +79,8 @@ module SnapSearch
         check_static_files: false
       }.merge(options)
       
-      # TODO: Validate the request key is given and is a Rack::Request
+      raise ArgumentError, 'options[:request] must be an instance of Rack::Request' unless options[:request].is_a?(Rack::Request)
+      
       self.robots_json = options[:robots_json] if options[:robots_json] != @robots_json # If a new robots_json path is given, use the custom setter method which will set @robots to that parsed JSON file
       
       uri = Addressable::URI.parse( options[:request].url )
@@ -139,14 +140,16 @@ module SnapSearch
     # @param [Addressable::URI] uri The Addressable::URI of the Rack::Request.
     # @return [String] URL intended for SnapSearch
     def get_encoded_url(params, uri)
-      # TODO: Validate argument type
+      raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
+      raise TypeError, 'uri must be an instance of Addressable::URI ' unless params.is_a?(Addressable::URI)
+      
       # NOTE: Have to pass the Rack::Request instance and use the `request.params` method to retrieve the parameters because:
       #         uri.to_s         # => "http://localhost/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2"
       #         uri.query_values # => {"key1"=>"value1", "_escaped_fragment_"=>"/path2?key2"}
       #         request.params   # => {"key1"=>"value1", "_escaped_fragment_"=>"/path2?key2=value2"}
       #       Is seems Addressable screws up the spliting of params into a Hash, but Rack does not.
       if !uri.query_values.nil? && uri.query_values.has_key?('_escaped_fragment_')
-        qs_and_hash = get_real_qs_and_hash_fragment(params, true) # TODO: Addressable does not correctly parse the query hash!
+        qs_and_hash = get_real_qs_and_hash_fragment(params, true)
         url = "#{uri.scheme}://#{uri.authority}#{uri.path}" # Remove the query and fragment (SCHEME + AUTHORITY + PATH)... Addressable::URI encodes the uri
         
         url.to_s + qs_and_hash['qs'] + qs_and_hash['hash']
@@ -162,14 +165,16 @@ module SnapSearch
     # @param [Addressable::URI] uri The Addressable::URI of the Rack::Request.
     # @return [String] The decoded URL.
     def get_decoded_path(params, uri)
-      # TODO: Validate argument type
+      raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
+      raise TypeError, 'uri must be an instance of Addressable::URI ' unless params.is_a?(Addressable::URI)
+      
       # NOTE: Have to pass the Rack::Request instance and use the `request.params` method to retrieve the parameters because:
       #         uri.to_s         # => "http://localhost/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2"
       #         uri.query_values # => {"key1"=>"value1", "_escaped_fragment_"=>"/path2?key2"}
       #         request.params   # => {"key1"=>"value1", "_escaped_fragment_"=>"/path2?key2=value2"}
       #       Is seems Addressable screws up the spliting of params into a Hash, but Rack does not.
       if !uri.query_values.nil? && uri.query_values.has_key?('_escaped_fragment_')
-        qs_and_hash = get_real_qs_and_hash_fragment(params, false) # TODO: Addressable does not correctly parse the query hash!
+        qs_and_hash = get_real_qs_and_hash_fragment(params, false)
         
         Addressable::URI.unescape(uri.path) + qs_and_hash['qs'] + qs_and_hash['hash']
       else
@@ -195,8 +200,9 @@ module SnapSearch
     # @param [Hash] params The params from the URI of the request.
     # @param [true, false] encode Whether to Addressable::URI.escape the query string or not
     # @return [Hash] Hash of query string and hash fragment
-    def get_real_qs_and_hash_fragment(params, escape)
-      # TODO: Validate argument types
+    def get_real_qs_and_hash_fragment(params, escape=false)
+      raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
+      
       query_params = params.dup
       query_params.delete('_escaped_fragment_')
       query_params = query_params.to_a

@@ -2,10 +2,10 @@ require 'snap_search/exception'
 
 module SnapSearch
   
-  # TODO: YARD
+  # Raised when the Client could not connect to the client's `api_url`.
   class ConnectionException < Exception
     
-    # TODO: YARD
+    # Create a new ConnectionException.
     def initialize
       super('Could not establish a connection to SnapSearch.')
     end
