@@ -59,6 +59,50 @@ Push the gem to Ruby Gems:
 gem push pkg/snapsearch-client-ruby-MAJOR.MINOR.PATCH.gem
 ```
 
+Setting Up the Detector
+-----------------------
+
+The `Detector` class detects if the incoming request is coming from a robot or not.
+
+Detects if the request came from a search engine robot. It will intercept in cascading order:
+
+1. on a GET request
+2. on an HTTP or HTTPS protocol
+3. not on any ignored robot user agents
+4. not on any route not matching the whitelist
+5. not on any route matching the blacklist
+6. not on any static files that is not a PHP file if it is detected
+7. on requests with _escaped_fragment_ query parameter
+8. on any matched robot user agents
+
+You can customize a few aspects of this process:
+
+#### User Agents
+
+Most robots send a unique `user-agent` HTTP header that we match against to confirm if it indeed a request from a robot.  
+We also ignore certain user agents, such as the SnapSearch robot.
+
+The list of user agents to match and ignore is contained in `data/robots.json`. You can customize this list through the Detector instance
+you are working with:
+
+```
+# Retrieve the list of user agents to match and ignore:
+detector.robots # => { 'match' => ['SomeRobot', 'AnotherRobot'], 'ignore' => ['SnapSearch'] }
+
+# Add a user agent to match against:
+detector.robots['match'] << 'NewRobot'
+
+# Add a user agent to ignore:
+detector.robots['ignore'] << 'MyRobot'
+
+# Set a new list of user agents to match and ignore:
+detector.robots = { 'match' => ['WebScraper', 'SillyBot'], 'ignore' => ['MyBotToIgnore'] }
+
+# Load from a custom JSON file:
+detector.robots_json = './my_robots.json'
+detector.robots # => { 'match' => ['MyCustomBot', 'AnotherRobot'], 'ignore' => ['MyLoadedBotFromJSON'] }
+```
+
 Tests
 ----
 
