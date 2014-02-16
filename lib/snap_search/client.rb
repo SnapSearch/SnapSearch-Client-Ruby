@@ -27,7 +27,11 @@ module SnapSearch
     # @param [String, #to_s] value The value to set the attribute to.
     # @return [String] The new value of the attribute.
     def email=(value)
-      # TODO: Complain if value isn't a String/simple email validation
+      raise TypeError, 'email must be a String or respond to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
+      
+      value = value.to_s
+      raise ArgumentError, 'email must be an email address' unless value.include?(?@)
+      
       @email = value
     end
     
@@ -41,12 +45,12 @@ module SnapSearch
     
     # Validate and set the value of the `parameters` attribute.
     # 
-    # @param [String, #to_s] value The value to set the attribute to.
-    # @return [String] The new value of the attribute.
+    # @param [Hash, #to_h] value The value to set the attribute to.
+    # @return [Hash] The new value of the attribute.
     def parameters=(value)
-      # TODO: Complain if value is not a Hash
-      # TODO: Convert all keys to strings? Or does JSON do that for us?
-      @parameters = value
+      raise TypeError, 'parameters must be a Hash or respond to #to_h' unless value.is_a?(Hash) || value.respond_to?(:to_h)
+      
+      @parameters = value.to_h
     end
     
     # Validate and set the value of the `api_url` attribute.
@@ -54,8 +58,9 @@ module SnapSearch
     # @param [String, #to_s] value The value to set the attribute to.
     # @return [String] The new value of the attribute.
     def api_url=(value)
-      # TODO: Complain if @api_url is not a String/simple URL validation
-      @api_url = value
+      raise TypeError, 'api_url must be a String or respond_to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
+      
+      @api_url = value.to_s
     end
     
     # Send an authenticated HTTP request to the `api_url` and return the `content` field from the JSON response body.
@@ -63,8 +68,8 @@ module SnapSearch
     # @param [String, #to_s] url The url to send in the parameters to the `api_url`.
     # @return [String] The `content` field from the JSON response body.
     def request(url)
-      # TODO: Complain if url is not a String/simple URL validation
-      @parameters['url'] = url # The URL must contain the entire URL with the _escaped_fragment_ parsed out
+      raise TypeError, 'url must be a String or respond_to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
+      @parameters['url'] = url.to_s # The URL must contain the entire URL with the _escaped_fragment_ parsed out
       
       content_from_response(send_request)
     end
@@ -79,12 +84,12 @@ module SnapSearch
     # @option options [Hash, #to_h] :parameters ({}) The parameters to send with the HTTP request.
     # @option options [String, #to_s] :api_url (https://snapsearch.io/api/v1/robot) The URL to send the HTTP request to.
     def initialize_attributes(options)
-      # TODO: Complain if options isnt a Hash
+      raise TypeError, 'options must be a Hash or respond to #to_h' unless value.is_a?(Hash) || value.respond_to?(:to_h)
       
       options = {
         parameters: {},
         api_url: 'https://snapsearch.io/api/v1/robot'
-      }.merge(options)
+      }.merge(options.to_h)
       
       self.email, self.key, self.parameters, self.api_url = options.values_at(:email, :key, :parameters, :api_url)
     end
@@ -114,10 +119,7 @@ module SnapSearch
       case body['code']
       when 'success' then body['content']
       when 'validation_error' then raise( ValidationException, body['content'] )
-      else
-        # TODO: Raise exception?
-        # System error on SnapSearch; Nothing we can do
-        false
+      else; false # System error on SnapSearch; Nothing we can do # TODO: Raise exception?
       end
     end
     
