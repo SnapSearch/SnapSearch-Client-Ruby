@@ -18,16 +18,29 @@ module SnapSearch
     # @option options [true, false] :check_static_files Set to `true` to ignore direct requests to files.
     # @option options [Rack::Request] :request The Rack request that is to be checked/detected.
     def initialize(options={})
-      options = {
+      # TODO: Validate options
+      
+      @options = {
         matched_routes: [],
         ignored_routes: [],
         robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json').to_s,
         check_static_files: false
-      }.merge(options)
+      }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
       
       @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
       
-      @robots = parse_robots_json(@robots_json)
+      self.robots_json = @options[:robots_json] # Use the setter method which sets the @robots_json instance variable to the path, then sets @robots to the parsed JSON of the path's contents.
+    end
+    
+    # Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+    # 
+    # @param  [String] value Absolute path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
+    # @return [String] The JSON file path
+    def robots_json=(value)
+      @robots_json = value.to_s
+      @robots = JSON.parse( File.read(@robots_json) ) # Ruby raises it's own generic I/O read errors & JSON parse errors
+      
+      @robots_json
     end
     
     # Detects if the request came from a search engine robot. It will intercept in cascading order:
@@ -192,14 +205,6 @@ module SnapSearch
         'qs' => query_string,
         'hash'  => hash_string
       }
-    end
-    
-    # Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
-    # 
-    # @param  [String] robots_json Absolute path to Robots.json
-    # @return [Hash<String, Array<String>>] The JSON data
-    def parse_robots_json(robots_json)
-      JSON.parse( File.read(robots_json.to_s) ) # Ruby raises it's own generic I/O read errors & JSON errors
     end
     
   end
