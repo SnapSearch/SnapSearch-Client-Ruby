@@ -147,13 +147,11 @@ module SnapSearch
       #       Is seems Addressable screws up the spliting of params into a Hash, but Rack does not.
       if !uri.query_values.nil? && uri.query_values.has_key?('_escaped_fragment_')
         qs_and_hash = get_real_qs_and_hash_fragment(params, true) # TODO: Addressable does not correctly parse the query hash!
-        url = "#{uri.scheme}://#{uri.authority}#{uri.path}" # Remove the query and fragment (SCHEME + AUTHORITY + PATH)
+        url = "#{uri.scheme}://#{uri.authority}#{uri.path}" # Remove the query and fragment (SCHEME + AUTHORITY + PATH)... Addressable::URI encodes the uri
         
-        url + qs_and_hash['qs'] + qs_and_hash['hash']
+        url.to_s + qs_and_hash['qs'] + qs_and_hash['hash']
       else
-        uri.to_s # TODO: CANNOT USE! Read below...
-        # So line 143, should be returning a URL that has all its path segments and query parameter keys and values encoded.
-        # The main thing is, we can't just use CGI.escape on the whole thing as that would escape the "/" and other special characters that delimits the URL.
+        uri.to_s
       end
     end
     
@@ -195,7 +193,7 @@ module SnapSearch
     # See this for more information: https://developers.google.com/webmasters/ajax-crawling/docs/specification
     # 
     # @param [Hash] params The params from the URI of the request.
-    # @param [true, false] encode Whether to CGI.escape the query string or not
+    # @param [true, false] encode Whether to Addressable::URI.escape the query string or not
     # @return [Hash] Hash of query string and hash fragment
     def get_real_qs_and_hash_fragment(params, escape)
       # TODO: Validate argument types
@@ -205,11 +203,8 @@ module SnapSearch
       
       query_string = ''
       unless query_params.empty?
-        # TODO: Read below... change CGI to Addressable and remove CGI dependency
-        # Finally this means on line 178 (which only affects query parameters):
-        # a. when encode is true, " " should be encoded to "%20" not "+", just like rawurlencode(" ") =&gt; "%20".
-        # b. when encode is not true, the query keys and values should already be decoded (both %20 and + are turned into spaces) by Ruby's runtime (as per common sense)
-        query_params.collect! { |key, value| [ CGI.escape(key), CGI.escape(value) ] } if escape
+        query_params.collect! { |key, value| [ Addressable::URI.escape(key), Addressable::URI.escape(value) ] } if escape
+        query_params.collect! { |key, value| [ Addressable::URI.unescape(key), Addressable::URI.unescape(value) ] } unless escape
         query_params.collect! { |key, value| "#{key}=#{value}" }
         
         query_string = "?#{ query_params.join(?&) }"
