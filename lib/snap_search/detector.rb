@@ -7,7 +7,7 @@ module SnapSearch
   # This is used to detect if an incoming request to a HTTP server is coming from a robot.
   class Detector
     
-    attr_reader :matched_routes, :ignored_routes, :check_static_files
+    attr_reader :matched_routes, :ignored_routes, :check_static_files, :robots
     
     # Create a new Detector instance.
     # 
@@ -35,12 +35,29 @@ module SnapSearch
     # Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
     # 
     # @param  [String] value Absolute path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
-    # @return [String] The JSON file path
     def robots_json=(value)
       @robots_json = value.to_s
       @robots = JSON.parse( File.read(@robots_json) ) # Ruby raises it's own generic I/O read errors & JSON parse errors
       
       @robots_json
+    end
+    
+    # Sets the list of robot user agents to match and ignore during detection.
+    # Note that you must set `robots` to a Hash with the 'match' and 'ignore' keys, both containing Arrays
+    # 
+    # @param [Hash<String, Array<String>>] value The Hash containing the list of robot user agents to match and ignore.
+    def robots=(value)
+      raise TypeError, 'value must be a Hash' unless value.is_a?(Hash)
+      
+      @robots = { 'match' => [], 'ignore' => [], }.merge(@robots)
+      
+      @robots.each do |key, list|
+        raise TypeError, "The '#{key}' must be an Array or respond to #to_a" unless list.is_a?(Array) || list.respond_to?(:to_a) # Validate all keys are Arrays or can be converted to one
+        
+        @robots[key] = list.to_a.collect(&:to_s) # Convert all values in the Arrays to Strings
+      end
+      
+      @robots
     end
     
     # Detects if the request came from a search engine robot. It will intercept in cascading order:
@@ -112,49 +129,6 @@ module SnapSearch
       
       # if no match at all, return false
       false
-    end
-    
-    # Sets a matched or ignored robots array. This replaces the matched or ignored arrays from Robots.json
-    # 
-    # @param robots [Array<String>] Array of robots user agents
-    # @param type [true, false] Type can be 'ignore' or 'match'
-    # @return [true, false] 
-    def set_robots(robots, type=nil)
-      unless type.nil?
-        return false unless %W{ignore match}.include?(type)
-        
-        @robots[type] = robots
-      else
-        @robots = robots
-      end
-      
-      true
-    end
-    
-    # Adds a single robot or an array of robots to the matched robots in Robots.json
-    # 
-    # @param robots [String, Array<String>] String of single or array of multiple robot user agent(s)
-    def add_match_robots(robots)
-      # NOTE: This method is redundant. One could simply do `detector.robots['match'] += ['SomeAgent']` or `detector.robots['match'] << "SomeAgent"`
-      # TODO: Validate that robots is Array (of Strings) or String
-      if robots.is_a?(Array)
-        @robots['match'] += robots
-      else
-        @robots['match'] << robots
-      end
-    end
-    
-    # Adds a single robot or an array of robots to the ignored robots in Robots.json
-    # 
-    # @param robots [String, Array<String>] String of single or array of multiple robot user agent(s)
-    def add_ignore_robots(robots)
-      # NOTE: This method is redundant. One could simply do `detector.robots['ignore'] += ['SomeAgent']` or `detector.robots['match'] << "SomeAgent"`
-      # TODO: Validate that robots is Array (of Strings) or String
-      if robots.is_a?(Array)
-        @robots['ignore'] += robots
-      else
-        @robots['ignore'] << robots
-      end
     end
     
     # Gets the encoded URL that is passed to SnapSearch so that SnapSearch can scrape the encoded URL.
