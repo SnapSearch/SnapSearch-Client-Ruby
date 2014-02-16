@@ -7,7 +7,7 @@ module SnapSearch
   # This is used to detect if an incoming request to a HTTP server is coming from a robot.
   class Detector
     
-    attr_reader :request, :matched_routes, :ignored_routes, :robots_json, :check_static_files, :robots
+    attr_reader :matched_routes, :ignored_routes, :check_static_files
     
     # Create a new Detector instance.
     # 
@@ -25,8 +25,7 @@ module SnapSearch
         check_static_files: false
       }.merge(options)
       
-      @request, @matched_routes, @ignored_routes, @robots_json, @check_static_files = options.values_at(:request, :matched_routes, :ignored_routes, :robots_json, :check_static_files)
-      # TODO: Validate options
+      @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
       
       @robots = parse_robots_json(@robots_json)
     end

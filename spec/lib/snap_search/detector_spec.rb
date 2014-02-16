@@ -125,7 +125,7 @@ describe SnapSearch::Detector do
       'SERVER_PROTOCOL' => 'HTTP/1.1', 
       'REQUEST_METHOD' => 'GET', 
       'QUERY_STRING' => '_escaped_fragment_',
-      'PATH_INFO' => '/snapsearch?&_escaped_fragment_',
+      'PATH_INFO' => '/snapsearch',
       'rack.url_scheme' => 'http', 
       'rack.input' => StringIO.new
     }
@@ -144,100 +144,89 @@ describe SnapSearch::Detector do
       'SERVER_PROTOCOL' => 'HTTP/1.1', 
       'REQUEST_METHOD' => 'GET', 
       'QUERY_STRING' => 'key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
-      'PATH_INFO' => '/snapsearch/path1?key1=value1&_escaped_fragment_=%2Fpath2%3Fkey2=value2',
+      'PATH_INFO' => '/snapsearch/path1',
       'rack.url_scheme' => 'http', 
       'rack.input' => StringIO.new
     }
   end
   
-  describe 'When a request from a normal browser comes through' do
-    
-    let(:request) { Rack::Request.new(normal_browser) }
-    
-    subject { described_class.new(request: request) }
-    
-    it('should not be intercepted') { subject.detect.should == false }
-    
-  end
+  subject { described_class.new }
   
-  describe 'When a request from a search engine robot comes through' do
+  describe '#detect' do
     
-    let(:request) { Rack::Request.new(search_engine) }
+    describe 'When a request from a normal browser comes through' do
+      
+      let(:request) { Rack::Request.new(normal_browser) }
+      
+      it('should not be intercepted') { subject.detect(request: request).should == false }
+      
+    end
     
-    subject { described_class.new(request: request) }
+    describe 'When a request from a search engine robot comes through' do
+      
+      let(:request) { Rack::Request.new(search_engine) }
+      
+      it('should be intercepted') { subject.detect(request: request).should == true }
+      
+    end
     
-    it('should be intercepted') { subject.detect.should == true }
+    describe 'When a request from a SnapSearch robot comes through' do
+      
+      let(:request) { Rack::Request.new(snapsearch_robot) }
+      
+      it('should not be intercepted') { subject.detect(request: request).should == false }
+      
+    end
     
-  end
-  
-  describe 'When a request from a SnapSearch robot comes through' do
+    describe 'When a non-GET request comes through' do
+      
+      let(:request) { Rack::Request.new(non_get_route) }
+      
+      it('should not be intercepted') { subject.detect(request: request).should == false }
+      
+    end
     
-    let(:request) { Rack::Request.new(snapsearch_robot) }
+    describe 'When an ignored route request comes through' do
+      
+      let(:request) { Rack::Request.new(ignored_route) }
+      
+      it('should not be intercepted') { subject.detect(ignored_routes: [/^\/ignored/], request: request).should == false }
+      
+    end
     
-    subject { described_class.new(request: request) }
+    describe 'When a non-matched route request comes through' do
+      
+      let(:request) { Rack::Request.new(matched_route) }
+      
+      it('should not be intercepted') { subject.detect(matched_routes: [/^\/non_matched_route/], request: request).should == false }
+      
+    end
     
-    it('should not be intercepted') { subject.detect.should == false }
+    describe 'When a matched route request comes through' do
+      
+      let(:request) { Rack::Request.new(matched_route) }
+      
+      it('should be intercepted') { subject.detect(matched_routes: [/^\/matched/], request: request).should == true }
+      
+    end
     
-  end
-  
-  describe 'When a non-GET request comes through' do
-    
-    let(:request) { Rack::Request.new(non_get_route) }
-    
-    subject { described_class.new(request: request) }
-    
-    it('should not be intercepted') { subject.detect.should == false }
-    
-  end
-  
-  describe 'When an ignored route request comes through' do
-    
-    let(:request) { Rack::Request.new(ignored_route) }
-    
-    subject { described_class.new(ignored_routes: [/^\/ignored/], request: request) }
-    
-    it('should not be intercepted') { subject.detect.should == false }
-    
-  end
-  
-  describe 'When a non-matched route request comes through' do
-    
-    let(:request) { Rack::Request.new(matched_route) }
-    
-    subject { described_class.new(matched_routes: [/^\/non_matched_route/], request: request) }
-    
-    it('should not be intercepted') { subject.detect.should == false }
-    
-  end
-  
-  describe 'When a matched route request comes through' do
-    
-    let(:request) { Rack::Request.new(matched_route) }
-    
-    subject { described_class.new(matched_routes: [/^\/matched/], request: request) }
-    
-    it('should be intercepted') { subject.detect.should == true }
-    
-  end
-  
-  describe 'When an escaped fragmented request comes through' do
-    
-    let(:request) { Rack::Request.new(basic_escaped_fragment_route) }
-    
-    subject { described_class.new(request: request) }
-    
-    it('should be intercepted') { subject.detect.should == true }
+    describe 'When an escaped fragmented request comes through' do
+      
+      let(:request) { Rack::Request.new(basic_escaped_fragment_route) }
+      
+      it('should be intercepted') { subject.detect(request: request).should == true }
+      
+    end
     
   end
   
   describe '#get_encoded_url' do
     
     let(:request) { Rack::Request.new(escaped_fragment_route) }
-    
-    subject { described_class.new(request: request) }
+    let(:uri) { Addressable::URI.parse(request.url) }
     
     it 'should convert the escaped fragment route back to hash fragment' do
-      subject.get_encoded_url.should == 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2'
+      subject.get_encoded_url(request, uri).should == 'http://localhost/snapsearch/path1?key1=value1#!/path2?key2=value2'
     end
     
   end
