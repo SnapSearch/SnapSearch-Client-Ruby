@@ -48,7 +48,8 @@ module SnapSearch
     # @param [Hash, #to_h] value The value to set the attribute to.
     # @return [Hash] The new value of the attribute.
     def parameters=(value)
-      raise TypeError, 'parameters must be a Hash or respond to #to_h' unless value.is_a?(Hash) || value.respond_to?(:to_h)
+      raise TypeError, 'parameters must be a Hash or respond to #to_h or #to_hash' unless value.is_a?(Hash) || value.respond_to?(:to_h) || value.respond_to?(:to_hash)
+      value = value.to_h rescue value.to_hash
       
       @parameters = value.to_h
     end
@@ -84,7 +85,8 @@ module SnapSearch
     # @option options [Hash, #to_h] :parameters ({}) The parameters to send with the HTTP request.
     # @option options [String, #to_s] :api_url (https://snapsearch.io/api/v1/robot) The URL to send the HTTP request to.
     def initialize_attributes(options)
-      raise TypeError, 'options must be a Hash or respond to #to_h' unless value.is_a?(Hash) || value.respond_to?(:to_h)
+      raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h) || options.respond_to?(:to_hash)
+      options = options.to_h rescue options.to_hash
       
       options = {
         parameters: {},

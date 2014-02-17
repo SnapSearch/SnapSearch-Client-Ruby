@@ -15,7 +15,8 @@ module Rack
     # @yieldparam [SnapSearch::Detector] detector The instance of the Detector class which will be used for detecting whether requests are coming from a robot.
     def initialize(app, options={}, &block)
       raise TypeError, 'app must respond to #call' unless app.respond_to?(:call)
-      raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h)
+      raise TypeError, 'options must be a Hash or respond to #to_h or #to_hash' unless options.is_a?(Hash) || options.respond_to?(:to_h)  || options.respond_to?(:to_hash)
+      options = options.to_h rescue options.to_hash
       
       @app, @config = app, Rack::SnapSearch::Config.new(options)
       
@@ -31,9 +32,10 @@ module Rack
     # 
     # @param [Hash, to_h] app The Rack environment
     def call(environment)
-      raise TypeError, 'environment must be a Hash or respond to #to_h' unless environment.is_a?(Hash) || environment.respond_to?(:to_h)
+      raise TypeError, 'environment must be a Hash or respond to #to_h or #to_hash' unless environment.is_a?(Hash) || environment.respond_to?(:to_h)  || environment.respond_to?(:to_hash)
+      environment = environment.to_h rescue environment.to_hash
       
-      @status, @headers, @body = @app.call(environment.to_h)
+      @status, @headers, @body = @app.call(environment)
       @request = Rack::Request.new(environment.to_h)
       
       setup_response

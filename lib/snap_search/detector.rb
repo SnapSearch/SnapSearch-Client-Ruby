@@ -18,14 +18,15 @@ module SnapSearch
     # @option options [true, false] :check_static_files Set to `true` to ignore direct requests to files.
     # @option options [Rack::Request] :request The Rack request that is to be checked/detected.
     def initialize(options={})
-      raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h)
+      raise TypeError, 'options must be a Hash or respond to #to_h or #to_hash' unless options.is_a?(Hash) || options.respond_to?(:to_h) || options.respond_to?(:to_hash)
+      options = options.to_h rescue options.to_hash
       
       @options = {
         matched_routes: [],
         ignored_routes: [],
         robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json').to_s,
         check_static_files: false
-      }.merge(options.to_h) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
+      }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
       
       @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
       
@@ -165,7 +166,9 @@ module SnapSearch
     # @param [Addressable::URI] uri The Addressable::URI of the Rack::Request.
     # @return [String] The decoded URL.
     def get_decoded_path(params, uri)
-      raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
+      raise TypeError, 'params must be a Hash or respond to #to_h or #to_hash' unless params.is_a?(Hash) || params.respond_to?(:to_h) || params.respond_to?(:to_hash)
+      params = params.to_h rescue params.to_hash
+      
       raise TypeError, 'uri must be an instance of Addressable::URI ' unless uri.is_a?(Addressable::URI)
       
       # NOTE: Have to pass the Rack::Request instance and use the `request.params` method to retrieve the parameters because:
@@ -201,7 +204,8 @@ module SnapSearch
     # @param [true, false] encode Whether to Addressable::URI.escape the query string or not
     # @return [Hash] Hash of query string and hash fragment
     def get_real_qs_and_hash_fragment(params, escape=false)
-      raise TypeError, 'params must be a Hash or respond to #to_h' unless params.is_a?(Hash) || params.respond_to?(:to_h)
+      raise TypeError, 'params must be a Hash or respond to #to_h or #to_hash' unless params.is_a?(Hash) || params.respond_to?(:to_h) || params.respond_to?(:to_hash)
+      params = params.to_h rescue params.to_hash
       
       query_params = params.dup
       query_params.delete('_escaped_fragment_')
