@@ -119,7 +119,7 @@ module SnapSearch
       body = JSON.parse(response.body)
       
       case body['code']
-      when 'success' then body['content']
+      when 'success' || nil then body['content']
       when 'validation_error' then raise( ValidationException, body['content'] )
       else; false # System error on SnapSearch; Nothing we can do # TODO: Raise exception?
       end
