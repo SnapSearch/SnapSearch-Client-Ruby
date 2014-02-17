@@ -82,7 +82,7 @@ You can customize a few aspects of this process:
 Most robots send a unique `user-agent` HTTP header that we match against to confirm if it indeed a request from a robot.  
 We also ignore certain user agents, such as the SnapSearch robot.
 
-The list of user agents to match and ignore is contained in `data/robots.json`. You can customize this list through the Detector instance
+The list of user agents to match and ignore is contained in `resources/robots.json`. You can customize this list through the Detector instance
 you are working with:
 
 ```

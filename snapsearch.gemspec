@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.version       = Pathname.glob('VERSION*').first.read rescue '0.0.0'
   s.description   = s.summary
   s.require_paths = ['lib']
-  s.files         = Dir['{{Rake,Gem}file{.lock,},README*,VERSION,LICENSE,*.gemspec,{lib,bin,examples,data,spec,test}/**/*}']
+  s.files         = Dir['{{Rake,Gem}file{.lock,},README*,VERSION,LICENSE,*.gemspec,{lib,bin,examples,resources,spec,test}/**/*}']
   s.test_files    = Dir['{examples,spec,test}/**/*']
   
 end

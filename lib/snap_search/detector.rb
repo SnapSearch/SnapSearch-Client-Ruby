@@ -24,7 +24,7 @@ module SnapSearch
       @options = {
         matched_routes: [],
         ignored_routes: [],
-        robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'data', 'robots.json').to_s,
+        robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'resources', 'robots.json').to_s,
         check_static_files: false
       }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
       
