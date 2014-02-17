@@ -214,7 +214,6 @@ module SnapSearch
       query_string = ''
       unless query_params.empty?
         query_params.collect! { |key, value| [ Addressable::URI.escape(key), Addressable::URI.escape(value) ] } if escape
-        query_params.collect! { |key, value| [ Addressable::URI.unescape(key), Addressable::URI.unescape(value) ] } unless escape
         query_params.collect! { |key, value| "#{key}=#{value}" }
         
         query_string = "?#{ query_params.join(?&) }"
