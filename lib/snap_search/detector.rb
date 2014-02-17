@@ -203,7 +203,7 @@ module SnapSearch
     # @param [Hash] params The params from the URI of the request.
     # @param [true, false] encode Whether to Addressable::URI.escape the query string or not
     # @return [Hash] Hash of query string and hash fragment
-    def get_real_qs_and_hash_fragment(params, escape=false)
+    def get_real_qs_and_hash_fragment(params, escape)
       raise TypeError, 'params must be a Hash or respond to #to_h or #to_hash' unless params.is_a?(Hash) || params.respond_to?(:to_h) || params.respond_to?(:to_hash)
       params = params.to_h rescue params.to_hash
       
