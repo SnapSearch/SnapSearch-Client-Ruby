@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rack/request'
 
 describe SnapSearch::Interceptor do
     
@@ -25,8 +26,10 @@ describe SnapSearch::Interceptor do
     
     subject { described_class.new(client, detector) }
     
+    let(:request) { Rack::Request.new( { 'rack.input' => StringIO.new }.merge(client.request) ) }
+    
     it 'should be a Hash' do
-        content = subject.intercept
+        content = subject.intercept(request: request)
         content.should be_a(Hash)
     end
     

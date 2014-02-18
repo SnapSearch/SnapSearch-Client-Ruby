@@ -59,7 +59,7 @@ module SnapSearch
         # @param [String, #to_s] value The value to set the attribute to.
         # @return [String] The new value of the attribute.
         def api_url=(value)
-            raise TypeError, 'api_url must be a String or respond_to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
+            raise TypeError, 'api_url must be a String or respond_to #to_s' unless value.is_a?(String) || value.respond_to?(:to_s)
             
             @api_url = value.to_s
         end
@@ -69,7 +69,7 @@ module SnapSearch
         # @param [String, #to_s] url The url to send in the parameters to the `api_url`.
         # @return [String] The `content` field from the JSON response body.
         def request(url)
-            raise TypeError, 'url must be a String or respond_to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
+            raise TypeError, 'url must be a String or respond_to #to_s' unless url.is_a?(String) || url.respond_to?(:to_s)
             @parameters['url'] = url.to_s # The URL must contain the entire URL with the _escaped_fragment_ parsed out
             
             content_from_response(send_request)
@@ -105,6 +105,7 @@ module SnapSearch
             request.url = api_url
             request.auth.basic(email, key)
             request.open_timeout = 30 # TODO: Have as option in initialize_attributes?
+            request.headers['Content-Type'] = 'application/json'
             request.body = @parameters.to_json
             
             HTTPI.post(request)

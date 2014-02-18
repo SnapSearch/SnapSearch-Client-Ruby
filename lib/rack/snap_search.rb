@@ -48,10 +48,10 @@ module Rack
         
         # Intercept and return the response.
         def setup_response
-            @response = begin
-                @interceptor.intercept(request: @request) # TODO: ignored_routes, matched_routes, robots_json, & check_static_files options
+            begin
+                @response = @interceptor.intercept(request: @request) # TODO: ignored_routes, matched_routes, robots_json, & check_static_files options
             rescue SnapSearch::Exception => exception
-                @config.on_exception.call(exception) unless @config.on_exception.nil?
+                @config.on_exception.nil? ? raise(exception) : @config.on_exception.call(exception)
             end
         end
         
@@ -68,7 +68,7 @@ module Rack
         end
         
         # Setup Location and Status headers, as well as teh body, if we got a response from SnapSearch.
-        def setup_attributes_if_response_exists
+        def setup_attributes
             setup_location_header
             # TODO: Should setup_content_length_header?
             setup_status_and_body

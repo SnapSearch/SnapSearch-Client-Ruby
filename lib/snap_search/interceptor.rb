@@ -16,7 +16,8 @@ module SnapSearch
         # @param [Hash, #to_h] options The options to pass to the Detector.
         # @return [Hash, false] The response from SnapSearch or `false`.
         def intercept(options={})
-            @detector.detect(options) ? @client.request( @detector.get_encoded_url ) : false
+            encoded_url = @detector.get_encoded_url( options[:request].params, Addressable::URI.parse(options[:request].url) )
+            @detector.detect(options) ? @client.request(encoded_url) : false
         end
         
     end
