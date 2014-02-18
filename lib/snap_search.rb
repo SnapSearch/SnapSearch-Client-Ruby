@@ -1,5 +1,5 @@
 module SnapSearch
-  
+    
 end
 
 require 'snap_search/client'
