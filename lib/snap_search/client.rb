@@ -104,7 +104,9 @@ module SnapSearch
             request = HTTPI::Request.new
             request.url = api_url
             request.auth.basic(email, key)
-            request.open_timeout = 30 # TODO: Have as option in initialize_attributes?
+            request.auth.ssl.ca_cert_file = Pathname.new(__FILE__).join('..', '..', '..', 'resources', 'cacert.pem').to_s
+            request.auth.ssl.verify_mode = :peer
+            request.open_timeout = 30
             request.headers['Content-Type'] = 'application/json'
             request.body = @parameters.to_json
             
@@ -120,7 +122,7 @@ module SnapSearch
             body = JSON.parse(response.body)
             
             case body['code']
-            when 'success' || nil then body['content']
+            when 'success' then body['content']
             when 'validation_error' then raise( ValidationException, body['content'] )
             else; false # System error on SnapSearch; Nothing we can do # TODO: Raise exception?
             end
