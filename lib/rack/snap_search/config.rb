@@ -11,12 +11,12 @@ module Rack
             # @option options [String] :key The key to authenticate with.
             # @option options [Proc] :on_exception The block to run when an exception within SnapSearch occurs.
             def initialize(options={})
-                [:email, :key, :on_exception].each do |attribute|
+                [:email, :key, :x_forwarded_proto, :on_exception].each do |attribute|
                     send( "#{attribute}=", options[attribute] ) if options.has_key?(attribute)
                 end
             end
             
-            attr_reader :email, :key
+            attr_reader :email, :key, :x_forwarded_proto
             
             # Setter for the `email` attribute.
             # 
@@ -36,6 +36,14 @@ module Rack
                 raise TypeError, 'key must be a String or respond to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
                 
                 @key = value.to_s
+            end
+            
+            # Setter for the `x_forwarded_proto` attribute.
+            # 
+            # @param [true, false] value The value to set the attribute as.
+            # @return [true, false] The new value.
+            def x_forwarded_proto=(value)
+                @x_forwarded_proto = !!value
             end
             
             # Setter for the `on_exception` attribute.

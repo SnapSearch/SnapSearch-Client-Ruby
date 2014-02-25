@@ -19,6 +19,7 @@ module Rack
             options = options.to_h rescue options.to_hash
             
             @app, @config = app, Rack::SnapSearch::Config.new(options)
+            @config.x_forwarded_proto ||= true
             
             detector = ::SnapSearch::Detector.new
             
@@ -34,6 +35,12 @@ module Rack
         def call(environment)
             raise TypeError, 'environment must be a Hash or respond to #to_h or #to_hash' unless environment.is_a?(Hash) || environment.respond_to?(:to_h)    || environment.respond_to?(:to_hash)
             environment = environment.to_h rescue environment.to_hash
+            
+            # Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+            if @config.x_forwarded_proto && environment['X-FORWARDED-PROTO']
+                environment['HTTPS'] = true && environment['rack.url_scheme'] = 'https' && environment['SERVER_PORT'] = 443 if environment['X-FORWARDED-PROTO'] == 'https'
+                environment['HTTPS'] = false && environment['rack.url_scheme'] = 'http' && environment['SERVER_PORT'] = 80 if env['X-FORWARDED-PROTO'] == 'http'
+            end
             
             @status, @headers, @body = @app.call(environment)
             @request = Rack::Request.new(environment.to_h)
