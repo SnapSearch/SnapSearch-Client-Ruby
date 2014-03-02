@@ -181,7 +181,7 @@ module SnapSearch
                 
                 Addressable::URI.unescape(uri.path) + qs_and_hash['qs'] + qs_and_hash['hash']
             else
-                Addressable::URI.unescape(uri.path)
+                Addressable::URI.unescape("#{ uri.path }?#{ uri.query }")
             end
         end
         
