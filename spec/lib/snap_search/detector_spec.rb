@@ -233,10 +233,10 @@ describe SnapSearch::Detector do
     
     describe '#get_decoded_path' do
         
-        let(:uri) { Addressable::URI.parse('http://localhost:8080/some%20path/another+path/path1.htm?key1=value%201') }
+        let(:uri) { Addressable::URI.parse('http://localhost:8080/some%20path/an%2Fother+path/path1.htm?key1=value%201%3F') }
         
         it 'should return the decoded path with the correct query and haash fragment' do
-            subject.get_decoded_path( {}, uri ).should == '/some path/another+path/path1.htm?key1=value 1'
+            subject.get_decoded_path( {}, uri ).should == '/some path/an/other+path/path1.htm?key1=value 1?'
         end
         
     end
