@@ -111,7 +111,7 @@ describe SnapSearch::Detector do
             'rack.input' => StringIO.new
         }
     end
-
+    
     let(:basic_escaped_fragment_route) do
         {
             'HTTP_HOST' => 'localhost', 
@@ -130,7 +130,7 @@ describe SnapSearch::Detector do
             'rack.input' => StringIO.new
         }
     end
-
+    
     let(:escaped_fragment_route) do
         {
             'HTTP_HOST' => 'localhost', 
@@ -148,6 +148,25 @@ describe SnapSearch::Detector do
             'rack.url_scheme' => 'http', 
             'rack.input' => StringIO.new
         }
+    end
+    
+    let(:valid_file_extension_route) do
+      {
+          'HTTP_HOST' => 'localhost', 
+          'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+          'SERVER_NAME' => 'localhost', 
+          'SERVER_PORT' => '80', 
+          'REMOTE_ADDR' => '::1', 
+          'DOCUMENT_ROOT' => 'C:/www', 
+          'REQUEST_SCHEME' => 'http', 
+          'GATEWAY_INTERFACE' => 'CGI/1.1', 
+          'SERVER_PROTOCOL' => 'HTTP/1.1', 
+          'REQUEST_METHOD' => 'GET', 
+          'QUERY_STRING' => '', 
+          'PATH_INFO' => '/snapsearch/song.html?key=value', 
+          'rack.url_scheme' => 'http', 
+          'rack.input' => StringIO.new
+      }
     end
     
     subject { described_class.new }
@@ -213,6 +232,14 @@ describe SnapSearch::Detector do
         describe 'When an escaped fragmented request comes through' do
             
             let(:request) { Rack::Request.new(basic_escaped_fragment_route) }
+            
+            it('should be intercepted') { subject.detect(request: request).should == true }
+            
+        end
+        
+        describe 'When other factors allow it and a valid file extension comes through' do
+            
+            let(:request) { Rack::Request.new(valid_file_extension_route) }
             
             it('should be intercepted') { subject.detect(request: request).should == true }
             
