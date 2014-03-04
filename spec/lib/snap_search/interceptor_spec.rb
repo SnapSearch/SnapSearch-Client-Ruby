@@ -5,6 +5,7 @@ describe SnapSearch::Interceptor do
     
     let(:detector) { double }
     let(:client) { double }
+    let(:encoded_url) { 'http://example.com' }
     let(:mock_response) do
         {
             'status' => 200,
@@ -20,7 +21,7 @@ describe SnapSearch::Interceptor do
     
     before do
         detector.stub(:detect) { true }
-        detector.stub(:get_encoded_url) { 'http://blah.com' }
+        detector.stub(:get_encoded_url) { encoded_url }
         
         client.stub(:request) { mock_response }
     end
@@ -46,7 +47,7 @@ describe SnapSearch::Interceptor do
                 
                 subject.intercept(request: request)
                 
-                before_intercept_url.should == subject.encoded_url
+                before_intercept_url.should == encoded_url
             end
             
             it 'should respond with the result of the callback if a Hash is returned' do
@@ -66,7 +67,7 @@ describe SnapSearch::Interceptor do
               
               content = subject.intercept(request: request)
               
-              content.should != response_string
+              content.should_not == response_string
             end
             
         end
@@ -81,7 +82,7 @@ describe SnapSearch::Interceptor do
               
               content = subject.intercept(request: request)
               
-              after_intercept_url.should == subject.encoded_url
+              after_intercept_url.should == encoded_url
               after_intercept_response_hash.should == content
               after_intercept_response_hash.should == mock_response
             end
@@ -104,7 +105,7 @@ describe SnapSearch::Interceptor do
             subject.
                 before_intercept { before_value = 'success' }.
                 after_intercept { after_value = 'success' }.
-                intercept
+                intercept(request: request)
             
             before_value.should == 'success'
             after_value.should == 'success'
