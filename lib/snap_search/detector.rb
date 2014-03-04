@@ -7,7 +7,7 @@ module SnapSearch
     # This is used to detect if an incoming request to a HTTP server is coming from a robot.
     class Detector
         
-        attr_reader :matched_routes, :ignored_routes, :check_static_files, :robots
+        attr_reader :matched_routes, :ignored_routes, :check_static_files, :robots, :extensions
         
         # Create a new Detector instance.
         # 
@@ -25,22 +25,36 @@ module SnapSearch
                 matched_routes: [],
                 ignored_routes: [],
                 robots_json: Pathname.new(__FILE__).join('..', '..', '..', 'resources', 'robots.json').to_s,
+                extensions_json: Pathname.new(__FILE__).join('..', '..', '..', 'resources', 'extensions.json').to_s,
                 check_static_files: false
             }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
             
             @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
             
             self.robots_json = @options[:robots_json] # Use the setter method which sets the @robots_json instance variable to the path, then sets @robots to the parsed JSON of the path's contents.
+            self.extensions_json = @options[:extensions_json] # Use the setter method which sets the @extensions_json instance variable to the path, then sets @extensions to the parsed JSON of the path's contents.
         end
         
-        # Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+        # Parses the `robots.json` file by decoding the JSON and throwing an exception if the decoding went wrong.
         # 
-        # @param    [String] value Absolute path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
+        # @param [String] value Absolute path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
         def robots_json=(value)
             @robots_json = value.to_s
             @robots = JSON.parse( File.read(@robots_json) ) # Ruby raises it's own generic I/O read errors & JSON parse errors
             
             @robots_json
+        end
+        
+        # Parses the `extensions.json` file by decoding the JSON and throwing an exception if the decoding went wrong.
+        # 
+        # @param [String] value Absolute path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
+        def extensions_json=(value)
+           @extensions_json = value.to_s
+           @extensions = JSON.parse( File.read(@extensions_json) ) # Ruby raises it's own generic I/O read errors & JSON parse errors
+           
+           @extensions = {} unless @extensions.is_a?(Hash)
+           
+           @extensions_json
         end
         
         # Sets the list of robot user agents to match and ignore during detection.
@@ -67,7 +81,7 @@ module SnapSearch
         #     3. not on any ignored robot user agents
         #     4. not on any route not matching the whitelist
         #     5. not on any route matching the blacklist
-        #     6. not on any static files that is not a PHP file if it is detected
+        #     6. not on any invalid file extensions if there is a file extension
         #     7. on requests with _escaped_fragment_ query parameter
         #     8. on any matched robot user agents
         # 
@@ -77,7 +91,7 @@ module SnapSearch
                 matched_routes: @matched_routes,
                 ignored_routes: @ignored_routes,
                 robots_json: @robots_json,
-                check_static_files: false
+                check_file_extensions: false
             }.merge(options)
             
             raise ArgumentError, 'options[:request] must be an instance of Rack::Request' unless options[:request].is_a?(Rack::Request)
@@ -106,22 +120,32 @@ module SnapSearch
             # detect ignored routes
             return false if !options[:ignored_routes].nil? && options[:ignored_routes].any? { |route| real_path =~ route }
             
-            # ignore direct requests to files unless it's a php file
-            if options[:check_static_files] && !document_root.empty? && !real_path.empty?
+            # detect extensions in order to prevent direct requests to static files
+            if options[:check_file_extensions]
+                extensions['generic'] = [] unless extensions['generic'].is_a?(Array)
+                extensions['php'] = [] unless extensions['php'].is_a?(Array)
+                # TODO: Ask Roger why this only matches generic and php extensions? It skips the python, asp, java, perl extensions.
                 
-                # convert slashes to OS specific slashes
-                # remove the trailing / or \ from the document root if it exists
-                document_root = document_root.gsub!(/[\\\/]/, File::SEPARATOR)
-                document_root.gsub!(/#{Regexp.escape(File::SEPARATOR)}$/, '')
+                valid_extensions = extensions['generic'] + extensions['php']
+                valid_extensions.collect! { |value| value.to_s.downcase.strip } # Transform all extensions to Strings if they arn't already. Then downcase and strip whitespace/newlines from the beginning & end of all values.
                 
-                # convert slashes to OS specific slashes
-                # remove the leading / or \ from the path if it exists
-                real_path = real_path.gsub!(/[\\\/]/, File::SEPARATOR)
-                real_path.gsub!(/^#{Regexp.escape(File::SEPARATOR)}/, '')
+                # Why we're using Addressable::URI rather than Regexp,
+                # Note that it only gets the 2nd extension if one is given:
+                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html')
+                #     uri.extname # => ".html"
+                #     
+                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html.haml')
+                #     uri.extname # => ".haml"
+                #     
+                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html.haml#/test.nothing')
+                #     uri.extname # => ".haml"
+                # extension will be tested against the decoded path, not the full url to avoid domain extensions
+                # if no extensions were found, then it's a pass
+                real_path_uri = Addressable::URI.parse(real_path)
+                extension = real_path_uri.extname
+                extension = extension[1..-1].downcase unless extension.empty?
                 
-                absolute_path = Pathname.new(document_root).join(real_path)
-                
-                return false if absolute_path.exist? && absolute_path.extname != 'php'
+                return false if !extension.empty? && !valid_extensions.include?(extension)
             end
             
             # detect escaped fragment (since the ignored user agents has been already been detected, SnapSearch won't continue the interception loop)
