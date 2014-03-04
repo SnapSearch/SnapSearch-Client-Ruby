@@ -207,6 +207,25 @@ describe SnapSearch::Detector do
         }
     end
     
+    let(:mp3_file_extension_route) do
+        {
+            'HTTP_HOST' => 'localhost', 
+            'HTTP_USER_AGENT' => 'AdsBot-Google ( http://www.google.com/adsbot.html)', 
+            'SERVER_NAME' => 'localhost', 
+            'SERVER_PORT' => '80', 
+            'REMOTE_ADDR' => '::1', 
+            'DOCUMENT_ROOT' => 'C:/www', 
+            'REQUEST_SCHEME' => 'http', 
+            'GATEWAY_INTERFACE' => 'CGI/1.1', 
+            'SERVER_PROTOCOL' => 'HTTP/1.1', 
+            'REQUEST_METHOD' => 'GET', 
+            'QUERY_STRING' => '', 
+            'PATH_INFO' => '/snapsearch/song.html.mp3?key=value', 
+            'rack.url_scheme' => 'http', 
+            'rack.input' => StringIO.new
+        }
+    end
+    
     subject { described_class.new }
     
     describe '#detect' do
@@ -292,11 +311,30 @@ describe SnapSearch::Detector do
             
         end
         
+        # TODO: Note that this is a false positive until the check_file_extensions option is implemented
         describe 'When other factors allow it and a nonexistent file extension comes through' do
             
             let(:request) { Rack::Request.new(nonexistent_file_extension_route) }
             
             it('should be intercepted') { subject.detect(request: request, check_file_extensions: true).should == true }
+            
+        end
+        
+        describe 'When custom extensions are set' do
+            
+            let(:request) { Rack::Request.new(mp3_file_extension_route) }
+            
+            it('should be intercepted correctly') do
+                subject.detect(request: request, check_file_extensions: true).should == false
+                
+                subject.extensions['generic'] << 'mp3'
+                
+                subject.detect(request: request, check_file_extensions: true).should == true
+                
+                subject.extensions['generic'].delete('mp3')
+                
+                subject.detect(request: request, check_file_extensions: true).should == false
+            end
             
         end
         
