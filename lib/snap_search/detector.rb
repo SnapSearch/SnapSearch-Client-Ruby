@@ -129,18 +129,6 @@ module SnapSearch
                 valid_extensions = extensions['generic'] + extensions['php']
                 valid_extensions.collect! { |value| value.to_s.downcase.strip } # Transform all extensions to Strings if they arn't already. Then downcase and strip whitespace/newlines from the beginning & end of all values.
                 
-                # Why we're using Addressable::URI rather than Regexp,
-                # Note that it only gets the 2nd extension if one is given:
-                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html')
-                #     uri.extname # => ".html"
-                #     
-                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html.haml')
-                #     uri.extname # => ".haml"
-                #     
-                #     uri = Addressable::URI.parse('http://localhost:3000/foo/bar.html.haml#/test.nothing')
-                #     uri.extname # => ".haml"
-                # extension will be tested against the decoded path, not the full url to avoid domain extensions
-                # if no extensions were found, then it's a pass
                 real_path_uri = Addressable::URI.parse(real_path)
                 extension = real_path_uri.extname
                 extension = extension[1..-1].downcase unless extension.empty?
