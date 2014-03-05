@@ -18,15 +18,15 @@ module Rack
             raise TypeError, 'options must be a Hash or respond to #to_h or #to_hash' unless options.is_a?(Hash) || options.respond_to?(:to_h)    || options.respond_to?(:to_hash)
             options = options.to_h rescue options.to_hash
             
-            @app, @config = app, Rack::SnapSearch::Config.new(options)
-            @config.x_forwarded_proto ||= true
+            @app = app
             
-            detector = ::SnapSearch::Detector.new
+            setup_config(options, block)
             
-            block.call(@config, detector) if block_given?
+            block.call(@config) if block_given?
             
-            client = ::SnapSearch::Client.new( email: @config.email, key: @config.key )
-            @interceptor = ::SnapSearch::Interceptor.new(client, detector)
+            setup_client
+            setup_detector
+            setup_interceptor
         end
         
         # Run the middleware.
@@ -52,6 +52,43 @@ module Rack
         end
         
         protected
+        
+        # Setup the Config instance from the given options.
+        def setup_config(options)
+            @config = Rack::SnapSearch::Config.new(options)
+            
+            @config.x_forwarded_proto ||= true
+        end
+        
+        # Setup the Client instance from the @config.
+        def setup_client
+            @client = ::SnapSearch::Client.new(
+                email:          @config.email,
+                key:            @config.key,
+                parameters:     @config.parameters,
+                api_url:        @config.api_url,
+                ca_cert_file:   @config.ca_cert_file
+            )
+        end
+        
+        # Setup the Detector instance from the @config.
+        def setup_detector
+            @detector = ::SnapSearch::Detector.new(
+                matched_routes:     @config.matched_routes,
+                ignored_routes:     @config.ignored_routes,
+                robots_json:        @config.robots_json,
+                extensions_json:    @config.extensions_json,
+                check_static_files: @config.check_static_files
+            )
+        end
+        
+        # Setup the Interceptor instance using the @client and @detector, then setup callbacks if needed.
+        def setup_interceptor
+            @interceptor = ::SnapSearch::Interceptor.new(@client, @detector)
+            
+            @interceptor.before_intercept(&@config.before_intercept) unless @config.before_intercept.nil?
+            @interceptor.after_intercept(&@config.after_intercept) unless @config.before_intercept.nil?
+        end
         
         # Intercept and return the response.
         def setup_response

@@ -30,6 +30,9 @@ module Rack
             # @option options [Proc, #call] :before_intercept A block to run before the interception of a bot.
             # @option options [Proc, #call] :after_intercept A block to run after the interception of a bot.
             def initialize(options={})
+                raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h) || options.respond_to?(:to_hash)
+                options = options.to_h rescue options.to_hash
+                
                 ATTRIBUTES.each do |attribute|
                     send( "#{attribute}=", options[attribute] ) if options.has_key?(attribute)
                 end
