@@ -1,69 +1,68 @@
 module Rack
     class SnapSearch
         
-        # The configuration class for the Rack middleware. Simply holds the email, key, and on_exception attributes
+        # The configuration class for the Rack middleware.
+        # Holds the attributes to initialize the Client, Interceptor, and Detector with.
         class Config
+            
+            ATTRIBUTES = [
+                :email, :key, :api_url, :ca_cert_file, :x_forwarded_proto, :parameters,               # Client options
+                :matched_routes, :ignored_routes, :robots_json, :extensions_json, :check_static_files # Detector options
+            ]
+            
+            attr_accessor *ATTRIBUTES # Setup reader & writer instance methods for each attribute
             
             # Create a new instance.
             # 
             # @param [Hash] options The options to initialize this instance with.
             # @option options [String] :email The email to authenticate with.
             # @option options [String] :key The key to authenticate with.
-            # @option options [Proc] :on_exception The block to run when an exception within SnapSearch occurs.
+            # @option options [String] :api_url The API URL to send requests to.
+            # @option options [String] :ca_cert_file The CA Cert file to use when sending HTTPS requests to the API.
+            # @option options [String] :x_forwarded_proto Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+            # @option options [String] :parameters Extra parameters to send to the API.
+            # @option options [String] :matched_routes Whitelisted routes. Should be an Array of Regexp instances.
+            # @option options [String] :ignored_routes Blacklisted routes. Should be an Array of Regexp instances.
+            # @option options [String] :robots_json A path of the JSON file containing the user agent whitelist & blacklist.
+            # @option options [String] :extensions_json A path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
+            # @option options [String] :check_static_files Set to `true` to ignore direct requests to files.
+            # @option options [Proc, #call] :on_exception The block to run when an exception within SnapSearch occurs.
+            # @option options [Proc, #call] :before_intercept A block to run before the interception of a bot.
+            # @option options [Proc, #call] :after_intercept A block to run after the interception of a bot.
             def initialize(options={})
-                [:email, :key, :x_forwarded_proto, :on_exception].each do |attribute|
+                ATTRIBUTES.each do |attribute|
                     send( "#{attribute}=", options[attribute] ) if options.has_key?(attribute)
                 end
             end
             
-            attr_reader :email, :key, :x_forwarded_proto
-            
-            # Setter for the `email` attribute.
-            # 
-            # @param [String, #to_s] value The value to set the attribute as.
-            # @return [String] The new value.
-            def email=(value)
-                raise TypeError, 'email must be a String or respond to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
-                
-                @email = value.to_s
-            end
-            
-            # Setter for the `key` attribute.
-            # 
-            # @param [String, #to_s] value The value to set the attribute as.
-            # @return [String] The new value.
-            def key=(value)
-                raise TypeError, 'key must be a String or respond to #to_s' unless value.is_a?(String) || respond_to?(:to_s)
-                
-                @key = value.to_s
-            end
-            
-            # Setter for the `x_forwarded_proto` attribute.
-            # 
-            # @param [true, false] value The value to set the attribute as.
-            # @return [true, false] The new value.
-            def x_forwarded_proto=(value)
-                @x_forwarded_proto = !!value
-            end
-            
-            # Setter for the `on_exception` attribute.
-            # 
-            # @param [Proc, #call] value The value to set the attribute as.
-            # @return [Proc, #call] The new value.
-            def on_exception=(value)
-                raise TypeError, 'on_exception must be a Proc or respond to #call' unless value.is_a?(Proc) || value.respond_to?(:call)
-                
-                @on_exception = value
-            end
-            
             # Getter/Setter for the `on_exception` attribute.
             # 
-            # @yield If given, the Proc to set the attribute as.
-            # @return [Proc] The new value.
+            # @yield If given, the Proc or callable to set the attribute as.
+            # @return [Proc] The value of the attribute.
             def on_exception(&value)
                 @on_exception = value if block_given?
                 
                 @on_exception
+            end
+            
+            # Getter/Setter for the `before_intercept` attribute on the Interceptor.
+            # 
+            # @yield If given, the Proc or callable to set the attribute as.
+            # @return [Proc] The value of the attribute.
+            def before_intercept(&block)
+                @before_intercept = value if block_given?
+                
+                @before_intercept
+            end
+            
+            # Getter/Setter for the `before_intercept` attribute on the Interceptor.
+            # 
+            # @yield If given, the Proc or callable to set the attribute as.
+            # @return [Proc] The value of the attribute.
+            def after_intercept
+                @after_intercept = value if block_given?
+                
+                @after_intercept
             end
             
         end

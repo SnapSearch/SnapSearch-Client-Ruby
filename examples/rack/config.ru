@@ -26,7 +26,7 @@ use Rack::SnapSearch do |config|
     # Optional: The CA Cert file to use when sending HTTPS requests to the API.
     config.ca_cert_file = SnapSearch.root.join('resources', 'cacert.pem') # Default
     
-    # Optional: Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+    # Optional: Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer.
     config.x_forwarded_proto = true # Default
     
     # Optional: Extra parameters to send to the API.
@@ -47,17 +47,17 @@ use Rack::SnapSearch do |config|
     # Optional: Set to `true` to ignore direct requests to files.
     config.check_static_files = false # Default
     
-    # Optional: A block to run when an exception occurs when making requests to the API
+    # Optional: A block to run when an exception occurs when making requests to the API.
     config.on_exception do |exception|
         p exception
     end
     
-    # Optional: A block to run before the interception of a bot
+    # Optional: A block to run before the interception of a bot.
     config.before_intercept do |url|
         puts "Before interception\n  URL: #{url}"
     end
     
-    # Optional: A block to run after the interception of a bot
+    # Optional: A block to run after the interception of a bot.
     config.after_intercept do |url, response|
         puts "After interception\n  URL: #{url}\n  Response: #{response}"
     end
