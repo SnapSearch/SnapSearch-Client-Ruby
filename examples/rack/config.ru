@@ -26,6 +26,9 @@ use Rack::SnapSearch do |config|
     # Optional: The CA Cert file to use when sending HTTPS requests to the API.
     config.ca_cert_file = SnapSearch.root.join('resources', 'cacert.pem') # Default
     
+    # Optional: Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+    config.x_forwarded_proto = true # Default
+    
     # Optional: Extra parameters to send to the API.
     config.parameters = {} # Default
     
@@ -37,6 +40,9 @@ use Rack::SnapSearch do |config|
     
     # Optional: A path of the JSON file containing the user agent whitelist & blacklist.
     config.robots_json = SnapSearch.root.join('resources', 'robots.json') # Default
+    
+    # Optional: A path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
+    config.extensions_json = SnapSearch.root.join('resources', 'extensions.json') # Default
     
     # Optional: Set to `true` to ignore direct requests to files.
     config.check_static_files = false # Default
