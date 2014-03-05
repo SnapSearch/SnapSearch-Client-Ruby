@@ -1,4 +1,10 @@
+require 'pathname'
+
 module SnapSearch
+    
+    def self.root
+        @root ||= Pathname.new(__FILE__).join('..', '..').expand_path
+    end
     
 end
 

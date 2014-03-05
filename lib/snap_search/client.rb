@@ -103,7 +103,7 @@ module SnapSearch
             options = {
                 parameters: {},
                 api_url: 'https://snapsearch.io/api/v1/robot',
-                ca_cert_file: Pathname.new(__FILE__).join('..', '..', '..', 'resources', 'cacert.pem').to_s
+                ca_cert_file: SnapSearch.root.join('resources', 'cacert.pem')
             }.merge(options.to_h)
             
             self.email, self.key, self.parameters, self.api_url, self.ca_cert_file = options.values_at(:email, :key, :parameters, :api_url, :ca_cert_file)

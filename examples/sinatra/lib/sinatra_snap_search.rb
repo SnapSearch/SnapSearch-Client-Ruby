@@ -6,7 +6,7 @@ require 'snap_search'
 class SinatraSnapSearch < Sinatra::Base
   
   configure do
-    set :root, Pathname.new(__FILE__).join('..', '..').expand_path
+    set :root, SnapSearch.root.join('examples', 'sinatra')
     enable :sessions, :logging, :method_override, :static
     
     use Rack::SnapSearch, email: 'email', key: 'key'
