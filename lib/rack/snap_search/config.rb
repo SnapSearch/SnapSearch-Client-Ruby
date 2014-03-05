@@ -39,8 +39,8 @@ module Rack
             # 
             # @yield If given, the Proc or callable to set the attribute as.
             # @return [Proc] The value of the attribute.
-            def on_exception(&value)
-                @on_exception = value if block_given?
+            def on_exception(&block)
+                @on_exception = block if block_given?
                 
                 @on_exception
             end
@@ -50,7 +50,7 @@ module Rack
             # @yield If given, the Proc or callable to set the attribute as.
             # @return [Proc] The value of the attribute.
             def before_intercept(&block)
-                @before_intercept = value if block_given?
+                @before_intercept = block if block_given?
                 
                 @before_intercept
             end
@@ -59,8 +59,8 @@ module Rack
             # 
             # @yield If given, the Proc or callable to set the attribute as.
             # @return [Proc] The value of the attribute.
-            def after_intercept
-                @after_intercept = value if block_given?
+            def after_intercept(&block)
+                @after_intercept = block if block_given?
                 
                 @after_intercept
             end
