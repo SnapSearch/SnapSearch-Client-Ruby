@@ -36,11 +36,7 @@ module Rack
             raise TypeError, 'environment must be a Hash or respond to #to_h or #to_hash' unless environment.is_a?(Hash) || environment.respond_to?(:to_h)    || environment.respond_to?(:to_hash)
             environment = environment.to_h rescue environment.to_hash
             
-            # Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
-            if @config.x_forwarded_proto && environment['X-FORWARDED-PROTO']
-                environment['HTTPS'] = true && environment['rack.url_scheme'] = 'https' && environment['SERVER_PORT'] = 443 if environment['X-FORWARDED-PROTO'] == 'https'
-                environment['HTTPS'] = false && environment['rack.url_scheme'] = 'http' && environment['SERVER_PORT'] = 80 if env['X-FORWARDED-PROTO'] == 'http'
-            end
+            setup_x_forwarded_proto(environment) if @config.x_forwarded_proto
             
             @status, @headers, @body = @app.call(environment)
             @request = Rack::Request.new(environment.to_h)
@@ -52,6 +48,8 @@ module Rack
         end
         
         protected
+        
+        # == Initialization Helpers
         
         # Setup the Config instance from the given options.
         def setup_config(options)
@@ -88,6 +86,17 @@ module Rack
             
             @interceptor.before_intercept(&@config.before_intercept) unless @config.before_intercept.nil?
             @interceptor.after_intercept(&@config.after_intercept) unless @config.before_intercept.nil?
+        end
+        
+        # == Running Helpers
+        
+        # Alter the environment if the X-FORWARDED-PROTO header is given.
+        def setup_x_forwarded_proto(environment)
+            # Check X-Forwarded-Proto because Heroku SSL Support terminates at the load balancer
+            if environment['X-FORWARDED-PROTO']
+                environment['HTTPS'] = true && environment['rack.url_scheme'] = 'https' && environment['SERVER_PORT'] = 443 if environment['X-FORWARDED-PROTO'] == 'https'
+                environment['HTTPS'] = false && environment['rack.url_scheme'] = 'http' && environment['SERVER_PORT'] = 80 if env['X-FORWARDED-PROTO'] == 'http'
+            end
         end
         
         # Intercept and return the response.
