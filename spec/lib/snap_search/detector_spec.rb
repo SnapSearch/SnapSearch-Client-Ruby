@@ -294,7 +294,6 @@ describe SnapSearch::Detector do
             
         end
         
-        # TODO: Note that this is a false positive until the check_file_extensions option is implemented
         describe 'When other factors allow it and a valid file extension comes through' do
             
             let(:request) { Rack::Request.new(valid_file_extension_route) }
@@ -311,7 +310,6 @@ describe SnapSearch::Detector do
             
         end
         
-        # TODO: Note that this is a false positive until the check_file_extensions option is implemented
         describe 'When other factors allow it and a nonexistent file extension comes through' do
             
             let(:request) { Rack::Request.new(nonexistent_file_extension_route) }
