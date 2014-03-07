@@ -44,7 +44,10 @@ module Rack
             setup_response
             setup_attributes if @response
             
-            [ @status, @headers, @body ]
+            rack_response = [ @status, @headers, @body ]
+            rack_response = @config.response_callback.call(*rack_response) unless @config.response_callback.nil?
+            
+            rack_response
         end
         
         protected

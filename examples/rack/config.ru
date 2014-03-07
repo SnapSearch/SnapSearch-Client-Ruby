@@ -62,6 +62,13 @@ use Rack::SnapSearch do |config|
         puts "After interception\n  URL: #{url}\n  Response: #{response}"
     end
     
+    # Optional: A block to manipulate the response from the SnapSearch API if a bit is intercepted.
+    config.response_callback do |status, headers, body|
+        puts "Response callback\n  Status: #{status}\n  Headers: #{headers}\n  Body: #{Body}"
+        
+        [ status, headers, body ]
+    end
+    
 end
 
 class Application

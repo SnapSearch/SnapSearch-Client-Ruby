@@ -29,6 +29,7 @@ module Rack
             # @option options [Proc, #call] :on_exception The block to run when an exception within SnapSearch occurs.
             # @option options [Proc, #call] :before_intercept A block to run before the interception of a bot.
             # @option options [Proc, #call] :after_intercept A block to run after the interception of a bot.
+            # @option options [Proc, #call] :response_callback A block to manipulate the response from the SnapSearch API.
             def initialize(options={})
                 raise TypeError, 'options must be a Hash or respond to #to_h' unless options.is_a?(Hash) || options.respond_to?(:to_h) || options.respond_to?(:to_hash)
                 options = options.to_h rescue options.to_hash
@@ -58,7 +59,7 @@ module Rack
                 @before_intercept
             end
             
-            # Getter/Setter for the `before_intercept` attribute on the Interceptor.
+            # Getter/Setter for the `after_intercept` attribute on the Interceptor.
             # 
             # @yield If given, the Proc or callable to set the attribute as.
             # @return [Proc] The value of the attribute.
@@ -66,6 +67,16 @@ module Rack
                 @after_intercept = block if block_given?
                 
                 @after_intercept
+            end
+            
+            # Getter/Setter for the `response_callback` attribute on the Interceptor.
+            # 
+            # @yield If given, the Proc or callable to set the attribute as.
+            # @return [Proc] The value of the attribute.
+            def response_callback(&block)
+                @response_callback = block if block_given?
+                
+                @response_callback
             end
             
         end
