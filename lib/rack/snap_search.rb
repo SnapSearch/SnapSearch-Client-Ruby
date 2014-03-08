@@ -38,16 +38,15 @@ module Rack
             
             setup_x_forwarded_proto(environment) if @config.x_forwarded_proto
             
-            @status, @headers, @body = @app.call(environment)
-            @request = Rack::Request.new(environment.to_h)
+            setup_response_from_environment(environment) # Will set @api_response if one is given from the API
+             
+            if @api_response
+              setup_attributes_from_api_response
+            else
+              setup_attributes_from_app(environment)
+            end
             
-            setup_response
-            setup_attributes if @response
-            
-            rack_response = [ @status, @headers, @body ]
-            rack_response = @config.response_callback.call(*rack_response) unless @config.response_callback.nil?
-            
-            rack_response
+            @config.response_callback.nil? ? rack_response : @config.response_callback.call(*rack_response)
         end
         
         protected
@@ -103,9 +102,10 @@ module Rack
         end
         
         # Intercept and return the response.
-        def setup_response
+        def setup_response_from_environment(environment)
             begin
-                @response = @interceptor.intercept(request: @request)
+                request = Rack::Request.new(environment.to_h)
+                @api_response = @interceptor.intercept(request: request)
             rescue SnapSearch::Exception => exception
                 @config.on_exception.nil? ? raise(exception) : @config.on_exception.call(exception)
             end
@@ -113,21 +113,29 @@ module Rack
         
         # Setup the Location header in the response.
         def setup_location_header
-            response_location_header = @response['headers'].find { |header| header['name'] == 'Location' }
+            response_location_header = @api_response['headers'].find { |header| header['name'] == 'Location' }
             
             @headers['Location'] = response_location_header['value'] unless response_location_header.nil?
         end
         
         # Setup the Status header and body in the response.
         def setup_status_and_body
-            @status, @body = @response['status'], @response['html']
+            @status, @body = @api_response['status'], [ @api_response['html'] ] # Note that the body in the Rack response must be an interable containing Strings, we it's wrapped within an Array.
         end
         
         # Setup Location and Status headers, as well as teh body, if we got a response from SnapSearch.
-        def setup_attributes
+        def setup_attributes_from_api_response
             setup_location_header
             # TODO: Should setup_content_length_header?
             setup_status_and_body
+        end
+        
+        def setup_attributes_from_app
+          @status, @headers, @body = @app.call(environment)
+        end
+        
+        def rack_response
+          [ @status, @headers, @body ]
         end
         
     end
