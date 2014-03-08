@@ -15,10 +15,10 @@ use Rack::Static, urls: ['/img', '/js', '/css'], root: 'public'
 use Rack::SnapSearch do |config|
     
     # Required: The email to authenticate with.
-    config.email = 'email@example.com'
+    config.email = 'user@example.com'
     
     # Required: The key to authenticate with.
-    config.key = 'password'
+    config.key = 'API_KEY_HERE'
     
     # Optional: The API URL to send requests to.
     config.api_url = 'https://snapsearch.io/api/v1/robot' # Default
@@ -64,7 +64,7 @@ use Rack::SnapSearch do |config|
     
     # Optional: A block to manipulate the response from the SnapSearch API if a bit is intercepted.
     config.response_callback do |status, headers, body|
-        puts "Response callback\n  Status: #{status}\n  Headers: #{headers}\n  Body: #{Body}"
+        puts "Response callback\n  Status: #{status}\n  Headers: #{headers}\n  Body: #{body}"
         
         [ status, headers, body ]
     end

@@ -20,7 +20,7 @@ module Rack
             
             @app = app
             
-            setup_config(options, block)
+            setup_config(options)
             
             block.call(@config) if block_given?
             
@@ -38,8 +38,8 @@ module Rack
             
             setup_x_forwarded_proto(environment) if @config.x_forwarded_proto
             
-            setup_response_from_environment(environment) # Will set @api_response if one is given from the API
-             
+            setup_api_response_from_environment(environment) # Will set @api_response if one is given from the API
+            
             if @api_response
               setup_attributes_from_api_response
             else
@@ -102,7 +102,7 @@ module Rack
         end
         
         # Intercept and return the response.
-        def setup_response_from_environment(environment)
+        def setup_api_response_from_environment(environment)
             begin
                 request = Rack::Request.new(environment.to_h)
                 @api_response = @interceptor.intercept(request: request)
@@ -130,7 +130,7 @@ module Rack
             setup_status_and_body
         end
         
-        def setup_attributes_from_app
+        def setup_attributes_from_app(environment)
           @status, @headers, @body = @app.call(environment)
         end
         
