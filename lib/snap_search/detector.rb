@@ -126,10 +126,8 @@ module SnapSearch
             # detect extensions in order to prevent direct requests to static files
             if options[:check_file_extensions]
                 extensions['generic'] = [] unless extensions['generic'].is_a?(Array)
-                extensions['php'] = [] unless extensions['php'].is_a?(Array)
-                # TODO: Ask Roger why this only matches generic and php extensions? It skips the python, asp, java, perl extensions.
                 
-                valid_extensions = extensions['generic'] + extensions['php']
+                valid_extensions = extensions['generic']
                 valid_extensions.collect! { |value| value.to_s.downcase.strip } # Transform all extensions to Strings if they arn't already. Then downcase and strip whitespace/newlines from the beginning & end of all values.
                 
                 real_path_uri = Addressable::URI.parse(real_path)
