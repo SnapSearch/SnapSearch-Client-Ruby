@@ -113,14 +113,14 @@ module Rack
         
         # Setup the Location header in the response.
         def setup_location_header
-            response_location_header = @response.headers.find { |header| header['name'] == 'Location' }
+            response_location_header = @response['headers'].find { |header| header['name'] == 'Location' }
             
             @headers['Location'] = response_location_header['value'] unless response_location_header.nil?
         end
         
         # Setup the Status header and body in the response.
         def setup_status_and_body
-            @status, @body = @response.status, @response.body
+            @status, @body = @response['status'], @response['html']
         end
         
         # Setup Location and Status headers, as well as teh body, if we got a response from SnapSearch.
