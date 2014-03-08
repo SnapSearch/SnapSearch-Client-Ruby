@@ -121,6 +121,7 @@ module SnapSearch
             request.auth.ssl.verify_mode = :peer
             request.open_timeout = 30
             request.headers['Content-Type'] = 'application/json'
+            request.headers['Accept-Encoding'] = 'gzip, deflate, identity'
             request.body = @parameters.to_json
             
             HTTPI.post(request)
