@@ -10,8 +10,22 @@ SnapSearch provides similar libraries in other languages: https://github.com/Sna
 Installation
 ------------
 
+SnapSearch-Client-Ruby is available through Rubygems and can be installed via:
+
+```
+gem install snapsearch-client-ruby
+```
+
+or add it to your Gemfile like this:
+
+```
+gem "snapsearch-client-ruby", "~> 0.1.0"
+```
+
 Usage
 -----
+
+Check the examples folder.
 
 Development
 ---------
