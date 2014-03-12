@@ -27,7 +27,7 @@ module SnapSearch
             response = @detector.detect(options) ? @client.request(encoded_url) : false
             
             # call the after response interceptor, and pass in the response Hash (which is always going to be a Hash)
-            @after_intercept.call(encoded_url, response) unless @after_intercept.nil?
+            @after_intercept.call(encoded_url, response) unless @after_intercept.nil? || !response
             
             response
         end
