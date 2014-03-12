@@ -18,16 +18,21 @@ module SnapSearch
         def intercept(options={})
             encoded_url = @detector.get_encoded_url( options[:request].params, Addressable::URI.parse(options[:request].url) )
             
-            # all the before interceptor and return an Hash response if it has one
-            unless @before_intercept.nil?
-                result = @before_intercept.call(encoded_url)
-                
-                return result.to_hash if !result.nil? && (result.respond_to?(:to_h) || result.respond_to?(:to_hash))
-            end
-            response = @detector.detect(options) ? @client.request(encoded_url) : false
+            detected = @detector.detect(options)
             
-            # call the after response interceptor, and pass in the response Hash (which is always going to be a Hash)
-            @after_intercept.call(encoded_url, response) if !@after_intercept.nil? && !response
+            if detected
+              # all the before interceptor and return an Hash response if it has one
+              unless @before_intercept.nil?
+                  result = @before_intercept.call(encoded_url)
+                  
+                  return result.to_hash if !result.nil? && (result.respond_to?(:to_h) || result.respond_to?(:to_hash))
+              end
+              
+              response = @client.request(encoded_url)
+              
+              # call the after response interceptor, and pass in the response Hash (which is always going to be a Hash)
+              @after_intercept.call(encoded_url, response) unless @after_intercept.nil?
+            end
             
             response
         end
