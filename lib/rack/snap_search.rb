@@ -41,12 +41,20 @@ module Rack
             setup_api_response_from_environment(environment) # Will set @api_response if one is given from the API
             
             if @api_response
-              setup_attributes_from_api_response
+              unless @config.response_callback.nil?
+                @callback_response = @config.response_callback.call(*@api_response)
+                
+                setup_attributes_from_callback_response
+              else
+                setup_attributes_from_api_response
+              end
+              
+              rack_response
             else
               setup_attributes_from_app(environment)
             end
             
-            @config.response_callback.nil? ? rack_response : @config.response_callback.call(*rack_response)
+            
         end
         
         protected
@@ -132,6 +140,13 @@ module Rack
         
         def setup_attributes_from_app(environment)
           @status, @headers, @body = @app.call(environment)
+        end
+        
+        def setup_attributes_from_callback_response
+          @status, @headers, @body = @callback_response
+          
+          # Convert the Array of Hashes into a single Hash:
+          @headers = @headers.each_with_object({}) { |hash, memo| memo[ hash.first[0] ] = hash.first[1] }
         end
         
         def rack_response
