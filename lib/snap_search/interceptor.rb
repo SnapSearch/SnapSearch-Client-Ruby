@@ -32,9 +32,11 @@ module SnapSearch
               
               # call the after response interceptor, and pass in the response Hash (which is always going to be a Hash)
               @after_intercept.call(encoded_url, response) unless @after_intercept.nil?
+              
+              response
+            else
+              false
             end
-            
-            response
         end
         
         # Before intercept callback.
