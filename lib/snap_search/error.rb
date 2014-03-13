@@ -1,7 +1,7 @@
 module SnapSearch
     
     # The superclass for all SnapSearch based exceptions.
-    class Exception < StandardError
+    class Error < StandardError
         
     end
     

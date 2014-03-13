@@ -1,7 +1,7 @@
 require 'json'
 require 'httpi'
-require 'snap_search/connection_exception'
-require 'snap_search/validation_exception'
+require 'snap_search/connection_error'
+require 'snap_search/validation_error'
 
 module SnapSearch
     
@@ -126,7 +126,7 @@ module SnapSearch
             
             HTTPI.post(request)
         rescue
-            raise ConnectionException
+            raise ConnectionError
         end
         
         # Retrieve the `content` or raise an error based on the `code` field in the JSON response.
@@ -137,7 +137,7 @@ module SnapSearch
             
             case body['code']
             when 'success' then body['content']
-            when 'validation_error' then raise( ValidationException, body['content'] )
+            when 'validation_error' then raise( ValidationError, body['content'] )
             else; false # System error on SnapSearch; Nothing we can do # TODO: Raise exception?
             end
         end

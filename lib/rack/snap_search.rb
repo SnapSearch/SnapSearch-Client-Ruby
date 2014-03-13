@@ -114,7 +114,7 @@ module Rack
             begin
                 request = Rack::Request.new(environment.to_h)
                 @api_response = @interceptor.intercept(request: request)
-            rescue SnapSearch::Exception => exception
+            rescue ::SnapSearch::Error => exception
                 @config.on_exception.nil? ? raise(exception) : @config.on_exception.call(exception)
             end
         end
