@@ -1,11 +1,11 @@
 # Notes to run:
-#     gem install bundler
-#     bundle install
-#     rackup
+#   gem install bundler
+#   bundle install
+#   rackup
 # 
 # Testing:
-#    Visit http://localhost:9292/
-#    Visit http://localhost:9292/?_escaped_fragment_
+#   Visit http://localhost:9292/
+#   Visit http://localhost:9292/?_escaped_fragment_
 
 require 'bundler/setup'
 require 'rack/snap_search'
@@ -44,7 +44,7 @@ use Rack::SnapSearch do |config|
     # Optional: A path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
     config.extensions_json = SnapSearch.root.join('resources', 'extensions.json') # Default
     
-    # Optional: Set to `true` to ignore direct requests to files.
+    # Optional: Set to `true` to ignore requests that have invalid file extensions
     config.check_static_files = false # Default
     
     # Optional: A block to run when an exception occurs when making requests to the API.

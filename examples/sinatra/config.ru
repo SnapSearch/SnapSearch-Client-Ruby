@@ -1,11 +1,11 @@
 # Notes to run:
-#     gem install bundler
-#     bundle install
-#     rackup
+#   gem install bundler
+#   bundle install
+#   rackup
 # 
 # Testing:
-#    Visit http://localhost:9292/
-#    Visit http://localhost:9292/?_escaped_fragment_
+#   Visit http://localhost:9292/
+#   Visit http://localhost:9292/?_escaped_fragment_
 
 require 'bundler/setup'
 require 'pathname'
