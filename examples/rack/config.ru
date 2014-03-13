@@ -15,10 +15,10 @@ use Rack::Static, urls: ['/img', '/js', '/css'], root: 'public'
 use Rack::SnapSearch do |config|
     
     # Required: The email to authenticate with.
-    config.email = 'demo@polycademy.com'
+    config.email = 'user@example.com'
     
     # Required: The key to authenticate with.
-    config.key = 'a2XEBCF6H5Tm9aYiwYRtdz7EirJDKbKHXl7LzA21boJVkxXD3E'
+    config.key = 'API_KEY_HERE'
     
     # Optional: The API URL to send requests to.
     config.api_url = 'https://snapsearch.io/api/v1/robot' # Default
