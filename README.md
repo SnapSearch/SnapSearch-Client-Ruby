@@ -132,12 +132,12 @@ use Rack::SnapSearch do |config|
     
     # Optional: A block to run before the interception of a bot. You can use this to do client side caching.
     config.before_intercept do |url|
-        puts "Before interception\n  URL: #{url}"
+        #Get a client side cached snapshot
     end
     
     # Optional: A block to run after the interception of a bot. You can use this to do client side caching.
     config.after_intercept do |url, response|
-        puts "After interception\n  URL: #{url}\n  Response: #{response}"
+        #Save the client side cached snapshot (the cached time should be less then the cached time you passed to SnapSearch, we recommend half the SnapSearch cachetime)
     end
     
     # Optional: A block to manipulate the response from the SnapSearch API if a bit is intercepted. The headers in this case represent [{name: "HEADERKEY", value: "HEADERVALUE"}, ...]
@@ -158,6 +158,8 @@ detector.robots['match'] << 'NewRobot'
 
 # Add a user agent to ignore:
 detector.robots['ignore'] << 'MyRobot'
+
+detector.extensions['ruby'] << 'myvalidrubyfileextensionforhtmlresources'
 ```
 
 Development
