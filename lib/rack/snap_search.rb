@@ -86,7 +86,7 @@ module Rack
                 ignored_routes:     @config.ignored_routes,
                 robots_json:        @config.robots_json,
                 extensions_json:    @config.extensions_json,
-                check_static_files: @config.check_static_files
+                check_file_extensions: @config.check_file_extensions
             )
         end
         

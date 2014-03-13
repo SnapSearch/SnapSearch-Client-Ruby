@@ -123,7 +123,7 @@ use Rack::SnapSearch do |config|
     #If there is no file extension, then there's no problem. But if there is, it could be a request to a static file. In which case it is not HTML that we want to intercept.
     #It is typically easier to simply whitelist or blacklist file based routes.
     #You do not need this unless your application server (not your HTTP server) is serving up static files. Like binary content, images and non-HTML text files.
-    config.check_static_files = false # Default
+    config.check_file_extensions = false # Default
     
     # Optional: A block to run when an exception occurs when making requests to the API.
     config.on_exception do |exception|

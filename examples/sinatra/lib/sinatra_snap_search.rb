@@ -42,7 +42,7 @@ class SinatraSnapSearch < Sinatra::Base
         config.extensions_json = SnapSearch.root.join('resources', 'extensions.json') # Default
         
         # Optional: Set to `true` to ignore direct requests to files.
-        config.check_static_files = false # Default
+        config.check_file_extensions = false # Default
         
         # Optional: A block to run when an exception occurs when making requests to the API.
         config.on_exception do |exception|

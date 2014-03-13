@@ -7,7 +7,7 @@ module Rack
             
             ATTRIBUTES = [
                 :email, :key, :api_url, :ca_cert_file, :x_forwarded_proto, :parameters,               # Client options
-                :matched_routes, :ignored_routes, :robots_json, :extensions_json, :check_static_files # Detector options
+                :matched_routes, :ignored_routes, :robots_json, :extensions_json, :check_file_extensions # Detector options
             ]
             
             attr_accessor *ATTRIBUTES # Setup reader & writer instance methods for each attribute
@@ -25,7 +25,7 @@ module Rack
             # @option options [String] :ignored_routes Blacklisted routes. Should be an Array of Regexp instances.
             # @option options [String] :robots_json A path of the JSON file containing the user agent whitelist & blacklist.
             # @option options [String] :extensions_json A path to the JSON file containing a single Hash with the keys `ignore` and `match`. These keys contain Arrays of Strings (user agents)
-            # @option options [String] :check_static_files Set to `true` to ignore direct requests to files.
+            # @option options [String] :check_file_extensions Set to `true` to ignore direct requests to files.
             # @option options [Proc, #call] :on_exception The block to run when an exception within SnapSearch occurs.
             # @option options [Proc, #call] :before_intercept A block to run before the interception of a bot.
             # @option options [Proc, #call] :after_intercept A block to run after the interception of a bot.

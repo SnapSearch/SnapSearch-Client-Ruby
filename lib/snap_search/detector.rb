@@ -8,7 +8,7 @@ module SnapSearch
     class Detector
         
         attr_reader :matched_routes, :ignored_routes
-        attr_reader :check_static_files
+        attr_reader :check_file_extensions
         attr_reader :robots_json, :robots
         attr_reader :extensions_json, :extensions
         
@@ -18,7 +18,7 @@ module SnapSearch
         # @option options [Array<Regexp>] :matched_routes The whitelisted routes.
         # @option options [Array<Regexp>] :ignored_routes The blacklisted routes.
         # @option options [String, #to_s] :robots_json The path of the JSON file containing the user agent whitelist & blacklist.
-        # @option options [true, false] :check_static_files Set to `true` to ignore direct requests to files.
+        # @option options [true, false] :check_file_extensions Set to `true` to ignore direct requests to files.
         # @option options [Rack::Request] :request The Rack request that is to be checked/detected.
         def initialize(options={})
             raise TypeError, 'options must be a Hash or respond to #to_h or #to_hash' unless options.is_a?(Hash) || options.respond_to?(:to_h) || options.respond_to?(:to_hash)
@@ -29,10 +29,10 @@ module SnapSearch
                 ignored_routes: [],
                 robots_json: SnapSearch.root.join('resources', 'robots.json'),
                 extensions_json: SnapSearch.root.join('resources', 'extensions.json'),
-                check_static_files: false
+                check_file_extensions: false
             }.merge(options) # Reverse merge: The hash `merge` is called on is used as the default and the options argument is merged into it
             
-            @matched_routes, @ignored_routes, @check_static_files = options.values_at(:matched_routes, :ignored_routes, :check_static_files)
+            @matched_routes, @ignored_routes, @check_file_extensions = options.values_at(:matched_routes, :ignored_routes, :check_file_extensions)
             
             self.robots_json = @options[:robots_json] # Use the setter method which sets the @robots_json instance variable to the path, then sets @robots to the parsed JSON of the path's contents.
             self.extensions_json = @options[:extensions_json] # Use the setter method which sets the @extensions_json instance variable to the path, then sets @extensions to the parsed JSON of the path's contents.

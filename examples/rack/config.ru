@@ -15,10 +15,10 @@ use Rack::Static, urls: ['/img', '/js', '/css'], root: 'public'
 use Rack::SnapSearch do |config|
     
     # Required: The email to authenticate with.
-    config.email = 'user@example.com'
+    config.email = 'demo@polycademy.com'
     
     # Required: The key to authenticate with.
-    config.key = 'API_KEY_HERE'
+    config.key = 'a2XEBCF6H5Tm9aYiwYRtdz7EirJDKbKHXl7LzA21boJVkxXD3E'
     
     # Optional: The API URL to send requests to.
     config.api_url = 'https://snapsearch.io/api/v1/robot' # Default
@@ -45,7 +45,7 @@ use Rack::SnapSearch do |config|
     config.extensions_json = SnapSearch.root.join('resources', 'extensions.json') # Default
     
     # Optional: Set to `true` to ignore requests that have invalid file extensions
-    config.check_static_files = false # Default
+    config.check_file_extensions = false # Default
     
     # Optional: A block to run when an exception occurs when making requests to the API.
     config.on_exception do |exception|
