@@ -19,7 +19,7 @@ gem install snapsearch-client-ruby
 or add it to your Gemfile like this:
 
 ```
-gem "snapsearch-client-ruby", "~> 0.1.0"
+gem "snapsearch-client-ruby", "~> 1.0.0"
 ```
 
 For all supported Ruby versions check out the `.travis.yml` file.
