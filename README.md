@@ -43,6 +43,8 @@ SnapSearch Client Ruby is a rack based middleware for SnapSearch. It works with 
 
 For full documentation on the API and API request parameters see: https://snapsearch.io/documentation
 
+**By the way, you need to blacklist non-html resources such as `sitemap.xml`. This is explained in https://snapsearch.io/documentation#notes**
+
 ### Basic Usage
 
 In your `config.ru` file, import the `rack/snap_search`, then setup the configuration:
